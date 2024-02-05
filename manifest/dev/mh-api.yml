@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mh-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mh-api
+  template:
+    metadata:
+      labels:
+        app: mh-api
+    spec:
+      containers:
+      - name: mh-api
+        image: "gcr.io/my-project/mh-api:latest"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "postgres"
+        - name: DB_DATABASE
+          value: "mh_api"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mh-api
+spec:
+  selector:
+    matchLabels:
+      app: mh-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: mh-api
+spec:
+  rules:
+  - host: www.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: mh-api
+          servicePort: 80
