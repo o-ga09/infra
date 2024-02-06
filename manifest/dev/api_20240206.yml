@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: api-20240206
-        image: "gcr.io/my-project/mh-api:latest"
+        image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api"
         ports:
         - containerPort: 8080
 
