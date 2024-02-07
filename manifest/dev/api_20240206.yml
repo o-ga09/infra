@@ -3,10 +3,10 @@ kind: Deployment
 metadata:
   name: api-20240206
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: api-20240206
+  replicas: 1
   template:
     metadata:
       labels:
@@ -26,8 +26,7 @@ metadata:
   name: api-20240206
 spec:
   selector:
-    matchLabels:
-      app: api-20240206
+    app: api-20240206
   ports:
   - protocol: TCP
     port: 80
@@ -35,16 +34,19 @@ spec:
   
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api-20240206
 spec:
   rules:
-  - host: www.example.com
+  - host: localhost
     http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: api-20240206
-          servicePort: 80
+          service:
+            name: api-20240206
+            port:
+              number: 8080
