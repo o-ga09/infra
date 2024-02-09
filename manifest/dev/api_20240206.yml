@@ -12,6 +12,8 @@ spec:
       labels:
         app: api-20240206
     spec:
+      imagePullSecrets:
+        - name: artifact-registry
       containers:
       - name: api-20240206
         image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:4779a2bb8f9cab6b1087d385f53c1f9ec3af9f47"
