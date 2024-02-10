@@ -42,6 +42,7 @@ kind: Ingress
 metadata:
   name: api-20240206
 spec:
+  ingressClassName: "nginx"
   rules:
   - host: localhost
     http:
