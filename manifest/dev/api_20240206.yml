@@ -25,7 +25,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-20240206
+  name: api-20240206-service
+  labels:
+    app: api-20240206-service
 spec:
   selector:
     app: api-20240206
@@ -51,6 +53,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: api-20240206
+            name: api-20240206-service
             port:
               number: 80
