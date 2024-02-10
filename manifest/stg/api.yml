@@ -48,7 +48,7 @@ spec:
   - host: localhost
     http:
       paths:
-      - path: /
+      - path: /stg
         pathType: Prefix
         backend:
           service:

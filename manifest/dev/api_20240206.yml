@@ -49,7 +49,7 @@ spec:
   - host: localhost
     http:
       paths:
-      - path: /
+      - path: /dev
         pathType: Prefix
         backend:
           service:
