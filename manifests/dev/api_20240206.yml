@@ -15,13 +15,11 @@ spec:
       imagePullSecrets:
         - name: artifact-registry
       containers:
-      - name: api-20240206
-        image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:4779a2bb8f9cab6b1087d385f53c1f9ec3af9f47"
-        ports:
-        - containerPort: 8080
-
+        - name: api-20240206
+          image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:bae4eea964c874869c00392593e844b6005f82a1"
+          ports:
+            - containerPort: 8080
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -32,13 +30,15 @@ spec:
   selector:
     app: api-20240206
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 8080
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
   type: ClusterIP
-
+  template:
+    spec:
+      containers:
+        - image: asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:bae4eea964c874869c00392593e844b6005f82a1
 ---
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -46,12 +46,16 @@ metadata:
 spec:
   ingressClassName: "nginx"
   rules:
-  - http:
-      paths:
-      - path: /dev
-        pathType: Prefix
-        backend:
-          service:
-            name: api-20240206-service
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /dev
+            pathType: Prefix
+            backend:
+              service:
+                name: api-20240206-service
+                port:
+                  number: 80
+  template:
+    spec:
+      containers:
+        - image: asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:bae4eea964c874869c00392593e844b6005f82a1
