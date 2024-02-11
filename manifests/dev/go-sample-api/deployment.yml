@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-20240206
+spec:
+  selector:
+    matchLabels:
+      app: api-20240206
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api-20240206
+    spec:
+      imagePullSecrets:
+        - name: artifact-registry
+      containers:
+        - name: api-20240206
+          image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:bae4eea964c874869c00392593e844b6005f82a1"
+          ports:
+            - containerPort: 8080

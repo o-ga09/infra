@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-20240206-service
+  labels:
+    app: api-20240206-service
+spec:
+  selector:
+    app: api-20240206
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
