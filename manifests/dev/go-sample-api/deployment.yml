@@ -17,5 +17,10 @@ spec:
       containers:
         - name: api-20240206
           image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:19682084bc8291e483abfd63a2948dae5d94f4ed"
+          envFrom:
+            - configMapRef:
+                name: dev
+            - secretRef:
+                name: dev
           ports:
             - containerPort: 8080
