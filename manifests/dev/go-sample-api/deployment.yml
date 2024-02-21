@@ -16,7 +16,7 @@ spec:
         - name: artifact-registry
       containers:
         - name: api-20240206
-          image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:3f34c70e9e9fde81888f91d6a902544d29ce514c"
+          image: "asia-northeast1-docker.pkg.dev/node-api-400701/node-api/go122-api:8e40ea8c2955296c396fddc9f7f0a8be5eb70539"
           envFrom:
             - configMapRef:
                 name: dev
