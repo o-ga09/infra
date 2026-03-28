@@ -5,13 +5,3 @@ metadata:
   namespace: argocd
 data:
   server.insecure: "true"
-  url: https://argocd.o-ga09.com
-  dex.config: |
-    connectors:
-    - type: google
-      id: google
-      name: Google
-      config:
-        clientID: 650836814988-uajdhplnqtmgidkp5ivoleet35u99a3c.apps.googleusercontent.com
-        clientSecret: $dex.google.clientSecret
-        redirectURI: https://argocd.o-ga09.com/api/dex/callback
