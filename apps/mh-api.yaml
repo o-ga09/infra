@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/o-ga09/infra
     targetRevision: main
-    path: manifests
+    path: manifests/mh-api
   destination:
     server: https://kubernetes.default.svc
     namespace: mh-api
