@@ -10,3 +10,4 @@ data:
   policy.default: role:readonly
   policy.csv: |
     g, taitiabe1997@gmail.com, role:admin
+    g, 113961407834329559629, role:admin
