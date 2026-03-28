@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mh-agent
+  namespace: mh-api
+spec:
+  selector:
+    app: mh-agent
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

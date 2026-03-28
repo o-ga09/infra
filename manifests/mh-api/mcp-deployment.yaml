@@ -1,32 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mh-api
+  name: mh-mcp
   namespace: mh-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mh-api
+      app: mh-mcp
   template:
     metadata:
       labels:
-        app: mh-api
+        app: mh-mcp
     spec:
       imagePullSecrets:
       - name: gar-secret
       containers:
-      - name: mh-api
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-api:7bbfa848948e765f78b7f0d0a206d4e0fbfcb924
+      - name: mh-mcp
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-mcp:latest
         ports:
         - containerPort: 8080
         env:
         - name: ENV
-          value: "dev"
-        - name: PORT
-          value: "8080"
-        - name: ALLOW_URL
-          value: "*"
+          value: "DEV"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: SERVICE_NAME
+          value: "mh-mcp"
+        - name: PROJECTID
+          value: "mh-api-local"
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:

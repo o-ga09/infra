@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mh-mcp
+  namespace: mh-api
+spec:
+  selector:
+    app: mh-mcp
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

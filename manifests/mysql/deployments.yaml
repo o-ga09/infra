@@ -16,7 +16,12 @@ spec:
       containers:
       - name: mysql
         image: mysql:8.0.28
+        args:
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_unicode_ci
         env:
+        - name: LANG
+          value: C.UTF-8
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:

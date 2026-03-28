@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mh-api
+  name: mh-agent
   namespace: mh-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mh-api
+      app: mh-agent
   template:
     metadata:
       labels:
-        app: mh-api
+        app: mh-agent
     spec:
       imagePullSecrets:
       - name: gar-secret
       containers:
-      - name: mh-api
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-api:7bbfa848948e765f78b7f0d0a206d4e0fbfcb924
+      - name: mh-agent
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-agent:latest
         ports:
         - containerPort: 8080
         env:
@@ -25,18 +25,18 @@ spec:
           value: "dev"
         - name: PORT
           value: "8080"
-        - name: ALLOW_URL
-          value: "*"
+        - name: GEMINI_MODEL
+          value: "gemini-2.0-flash-exp"
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: mh-api-secret
               key: DATABASE_URL
-        - name: SENTRY_DSN
+        - name: GEMINI_API_KEY
           valueFrom:
             secretKeyRef:
               name: mh-api-secret
-              key: SENTRY_DSN
+              key: GEMINI_API_KEY
         resources:
           requests:
             memory: "128Mi"
