@@ -3,7 +3,7 @@ alertmanager:
 
 grafana:
   adminPassword: admin
-  defaultDashboardsEnabled: true
+  defaultDashboardsEnabled: false
   sidecar:
     dashboards:
       enabled: true
