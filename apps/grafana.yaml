@@ -9,9 +9,6 @@ spec:
     repoURL: https://github.com/o-ga09/infra
     targetRevision: main
     path: manifests/grafana
-    helm:
-      valueFiles:
-      - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
