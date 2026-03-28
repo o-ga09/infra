@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: myapp.home.local
+  - host: mh-api.home.local
     http:
       paths:
       - path: /
