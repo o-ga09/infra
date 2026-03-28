@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 data:
   server.insecure: "true"
-  data:
+  url: https://argocd.o-ga09.com
   dex.config: |
     connectors:
     - type: google
