@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mh-api
+  namespace: mh-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mh-api
+  template:
+    metadata:
+      labels:
+        app: mh-api
+    spec:
+      containers:
+      - name: mh-api
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-api:7bbfa848948e765f78b7f0d0a206d4e0fbfcb924
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
