@@ -8,6 +8,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
 data:
   url: https://argocd.o-ga09.com
+  admin.enabled: "false"
   dex.config: |
     issuer: https://argocd.o-ga09.com/api/dex
     connectors:
