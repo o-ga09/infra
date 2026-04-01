@@ -24,7 +24,7 @@ spec:
         - containerPort: 9080
           name: http
         env:
-        - name: NODE_NAME
+        - name: HOSTNAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
