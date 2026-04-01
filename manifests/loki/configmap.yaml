@@ -40,3 +40,4 @@ data:
       working_directory: /loki/compactor
       compaction_interval: 10m
       retention_enabled: true
+      delete_request_store: filesystem
