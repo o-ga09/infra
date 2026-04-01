@@ -22,10 +22,7 @@ data:
       pipeline_stages:
       - cri: {}
       relabel_configs:
-      # 自ノードの Pod のみ対象（DaemonSet）
-      - source_labels: [__meta_kubernetes_pod_node_name]
-        target_label: __host__
-      # ログパスを設定（glob で namespace_pod_uid ディレクトリを照合）
+      # ログパスを設定（*はnamespace_podname_プレフィックスにマッチ）
       - source_labels:
         - __meta_kubernetes_pod_uid
         - __meta_kubernetes_pod_container_name
