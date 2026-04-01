@@ -16,10 +16,17 @@ grafana:
       folderAnnotation: grafana_folder
       provider:
         foldersFromFilesStructure: false
+    datasources:
+      enabled: true
+      label: grafana_datasource
+      labelValue: "1"
+      searchNamespace: monitoring
 
 prometheus:
   prometheusSpec:
     retention: 7d
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
     storageSpec:
       volumeClaimTemplate:
         spec:
