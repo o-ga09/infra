@@ -45,4 +45,5 @@ data:
         - __meta_kubernetes_pod_container_name
         target_label: __path__
         separator: /
-        replacement: /var/log/pods/$1/*.log
+        regex: (.+)/(.+)/(.+)/(.+)
+        replacement: /var/log/pods/${1}_${2}_${3}/${4}/*.log
