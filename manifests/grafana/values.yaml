@@ -2,7 +2,7 @@ alertmanager:
   enabled: false
 
 grafana:
-  adminPassword: admin
+  adminPassword: ""
   defaultDashboardsEnabled: true
   persistence:
     enabled: true
