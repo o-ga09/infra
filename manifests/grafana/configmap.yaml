@@ -30,4 +30,5 @@ data:
     token_url = https://accounts.google.com/o/oauth2/token
     allowed_domains = gmail.com
     allow_sign_up = true
+    [users]
     auto_assign_org_role = Admin

@@ -5,6 +5,9 @@ metadata:
   namespace: monitoring
 spec:
   template:
+    metadata:
+      annotations:
+        configmap-hash: "20260401-disable-login-form"
     spec:
       containers:
       - name: grafana
