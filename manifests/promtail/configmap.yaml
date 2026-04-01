@@ -22,12 +22,22 @@ data:
       pipeline_stages:
       - cri: {}
       relabel_configs:
-      # Pod名をラベルに追加
-      - source_labels: [__meta_kubernetes_pod_name]
-        target_label: pod
+      # 自ノードの Pod のみ対象（DaemonSet）
+      - source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: __host__
+      # ログパスを設定（glob で namespace_pod_uid ディレクトリを照合）
+      - source_labels:
+        - __meta_kubernetes_pod_uid
+        - __meta_kubernetes_pod_container_name
+        separator: "/"
+        target_label: __path__
+        replacement: /var/log/pods/*$1/*.log
       # Namespace をラベルに追加
       - source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
+      # Pod名をラベルに追加
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
       # コンテナ名をラベルに追加
       - source_labels: [__meta_kubernetes_pod_container_name]
         target_label: container
@@ -37,13 +47,3 @@ data:
       # Node名をラベルに追加
       - source_labels: [__meta_kubernetes_pod_node_name]
         target_label: node
-      # ログパスを設定
-      - source_labels:
-        - __meta_kubernetes_namespace
-        - __meta_kubernetes_pod_name
-        - __meta_kubernetes_pod_uid
-        - __meta_kubernetes_pod_container_name
-        target_label: __path__
-        separator: /
-        regex: (.+)/(.+)/(.+)/(.+)
-        replacement: /var/log/pods/${1}_${2}_${3}/${4}/*.log
