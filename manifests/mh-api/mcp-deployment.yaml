@@ -17,7 +17,7 @@ spec:
       - name: gar-secret
       containers:
       - name: mh-mcp
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-mcp:7bbfa848948e765f78b7f0d0a206d4e0fbfcb924
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-mcp:a6e1f75c31b0da5cb196c9041f56413b1cef2834
         ports:
         - containerPort: 8080
         env:
