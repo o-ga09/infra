@@ -39,6 +39,12 @@ spec:
             secretKeyRef:
               name: mh-api-secret
               key: SENTRY_DSN
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "tempo.monitoring.svc.cluster.local:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: PYROSCOPE_SERVER_ADDRESS
+          value: "http://pyroscope.monitoring.svc.cluster.local:4040"
         resources:
           requests:
             memory: "128Mi"
