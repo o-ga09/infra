@@ -20,6 +20,8 @@ spec:
         image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-api:a6e1f75c31b0da5cb196c9041f56413b1cef2834
         ports:
         - containerPort: 8080
+        - containerPort: 9090
+          name: metrics
         env:
         - name: ENV
           value: "dev"
