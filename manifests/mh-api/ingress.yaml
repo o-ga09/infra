@@ -26,3 +26,23 @@ spec:
             name: mh-api
             port:
               number: 8080
+  - host: mh-mcp.o-ga09.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mh-mcp
+            port:
+              number: 8080
+  - host: mh-agent.o-ga09.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mh-agent
+            port:
+              number: 8080
