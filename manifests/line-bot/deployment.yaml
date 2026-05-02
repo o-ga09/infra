@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: line-bot
+  namespace: line-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: line-bot
+  template:
+    metadata:
+      labels:
+        app: line-bot
+    spec:
+      imagePullSecrets:
+      - name: gar-secret
+      containers:
+      - name: line-bot
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/line-bot:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: LINE_CHANNEL_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: LINE_CHANNEL_SECRET
+        - name: LINE_CHANNEL_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: LINE_CHANNEL_ACCESS_TOKEN
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: REDIS_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
