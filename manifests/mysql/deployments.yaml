@@ -42,6 +42,21 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: password
+       - name: AI_KANJI_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: ai-kanji-database
+        - name: AI_KANJI_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: ai-kanji-username
+        - name: AI_KANJI_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: ai-kanji-password
         ports:
         - containerPort: 3306
         volumeMounts:
