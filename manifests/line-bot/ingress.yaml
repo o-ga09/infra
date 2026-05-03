@@ -13,6 +13,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: line-bot
+            name: line-bot-webhook
             port:
               number: 8080

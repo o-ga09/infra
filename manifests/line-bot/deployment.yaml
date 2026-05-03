@@ -1,28 +1,77 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: line-bot
+  name: line-bot-webhook
   namespace: line-bot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: line-bot
+      app: line-bot-webhook
   template:
     metadata:
       labels:
-        app: line-bot
+        app: line-bot-webhook
     spec:
       imagePullSecrets:
       - name: gar-secret
       containers:
-      - name: line-bot
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/line-bot:latest
+      - name: line-bot-webhook
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/webhook:latest
         ports:
         - containerPort: 8080
         env:
         - name: PORT
           value: "8080"
+        - name: LINE_CHANNEL_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: LINE_CHANNEL_SECRET
+        - name: LINE_CHANNEL_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: LINE_CHANNEL_ACCESS_TOKEN
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: REDIS_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: line-bot-worker
+  namespace: line-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: line-bot-worker
+  template:
+    metadata:
+      labels:
+        app: line-bot-worker
+    spec:
+      imagePullSecrets:
+      - name: gar-secret
+      containers:
+      - name: line-bot-worker
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:latest
+        env:
         - name: LINE_CHANNEL_SECRET
           valueFrom:
             secretKeyRef:
