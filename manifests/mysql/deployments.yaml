@@ -42,7 +42,7 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: password
-       - name: AI_KANJI_DATABASE
+        - name: AI_KANJI_DATABASE
           valueFrom:
             secretKeyRef:
               name: mysql-secret
