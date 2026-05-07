@@ -43,6 +43,35 @@ manifests/*/secret.yaml
 kubectl apply -f manifests/mysql/secret.yaml
 ```
 
+#### Sealed Secretsの生成手順
+
+`secret.yaml` を暗号化した `sealed-secret.yaml` を生成し、Gitにコミットします。
+
+**前提: `kubeseal` のインストール**
+
+```bash
+brew install kubeseal
+```
+
+**1. `secret.yaml` から `sealed-secret.yaml` を生成**
+
+```bash
+kubeseal --format yaml \
+  --controller-name=sealed-secrets \
+  --controller-namespace=kube-system \
+  < manifests/line-bot/secret.yaml \
+  > manifests/line-bot/sealed-secret.yaml
+```
+
+**2. 生成した `sealed-secret.yaml` をコミット**
+
+```bash
+git add manifests/line-bot/sealed-secret.yaml
+git commit -m "chore: update line-bot sealed-secret"
+```
+
+> `secret.yaml` は `.gitignore` 対象のため絶対にコミットしないこと。
+
 ---
 
 ## ローカル開発環境のセットアップ
