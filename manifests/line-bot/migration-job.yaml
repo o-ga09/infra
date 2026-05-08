@@ -15,7 +15,7 @@ spec:
       - name: gar-secret
       containers:
       - name: migration
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/webhook:96a1f44728bc9fa4e6f793c6efa467abfe700de4
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/webhook:089523c3169469f73dd5d1ea81de5c56231f11a4
         command: ["./migrate", "-command", "up"]
         env:
         - name: DATABASE_URL
