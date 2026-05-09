@@ -18,7 +18,7 @@ spec:
       - name: gar-secret
       containers:
       - name: line-bot-webhook
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/webhook:260c39ac40a1d60a40a83a807eefd39539082ac1
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/webhook:bda52aa1c6e3621da288ac0401c2e883d4660652
         ports:
         - containerPort: 8080
         env:
@@ -107,7 +107,7 @@ spec:
       - name: gar-secret
       containers:
       - name: line-bot-worker
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:260c39ac40a1d60a40a83a807eefd39539082ac1
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:bda52aa1c6e3621da288ac0401c2e883d4660652
         env:
         - name: LINE_CHANNEL_SECRET
           valueFrom:
