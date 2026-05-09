@@ -181,6 +181,8 @@ spec:
             secretKeyRef:
               name: line-bot-secret
               key: LLM_PROVIDER
+        - name: METRICS_PORT
+          value: "9090"
         resources:
           requests:
             memory: "128Mi"
