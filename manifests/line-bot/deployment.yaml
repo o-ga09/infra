@@ -115,14 +115,10 @@ spec:
       - name: gar-secret
       containers:
       - name: line-bot-worker
-<<<<<<< Updated upstream
         image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:82bd09f062dea7d7795426426c13cbaa1e0b22c6
-=======
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:089523c3169469f73dd5d1ea81de5c56231f11a4
         ports:
         - containerPort: 9090
           name: metrics
->>>>>>> Stashed changes
         env:
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "tempo.monitoring.svc.cluster.local:4317"
