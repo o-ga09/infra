@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: line-bot-webhook
+  namespace: line-bot
+  labels:
+    app: line-bot-webhook
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: line-bot-webhook
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - line-bot
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: line-bot-worker
+  namespace: line-bot
+  labels:
+    app: line-bot-worker
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: line-bot-worker
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - line-bot

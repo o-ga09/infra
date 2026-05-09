@@ -10,4 +10,21 @@ spec:
   - port: 8080
     targetPort: 8080
     name: http
+  - port: 9090
+    targetPort: 9090
+    name: metrics
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: line-bot-worker
+  namespace: line-bot
+spec:
+  selector:
+    app: line-bot-worker
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: metrics
   type: ClusterIP

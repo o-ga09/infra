@@ -21,9 +21,17 @@ spec:
         image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/webhook:82bd09f062dea7d7795426426c13cbaa1e0b22c6
         ports:
         - containerPort: 8080
+        - containerPort: 9090
+          name: metrics
         env:
         - name: PORT
           value: "8080"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "tempo.monitoring.svc.cluster.local:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: PYROSCOPE_SERVER_ADDRESS
+          value: "http://pyroscope.monitoring.svc.cluster.local:4040"
         - name: LINE_CHANNEL_SECRET
           valueFrom:
             secretKeyRef:
@@ -107,8 +115,21 @@ spec:
       - name: gar-secret
       containers:
       - name: line-bot-worker
+<<<<<<< Updated upstream
         image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:82bd09f062dea7d7795426426c13cbaa1e0b22c6
+=======
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:089523c3169469f73dd5d1ea81de5c56231f11a4
+        ports:
+        - containerPort: 9090
+          name: metrics
+>>>>>>> Stashed changes
         env:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "tempo.monitoring.svc.cluster.local:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: PYROSCOPE_SERVER_ADDRESS
+          value: "http://pyroscope.monitoring.svc.cluster.local:4040"
         - name: LINE_CHANNEL_SECRET
           valueFrom:
             secretKeyRef:
