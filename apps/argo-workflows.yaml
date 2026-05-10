@@ -29,6 +29,10 @@ spec:
               - email
           rbac:
             enabled: true
+          serviceAccount:
+            annotations:
+              workflows.argoproj.io/rbac-rule: "'true' == 'true'"
+              workflows.argoproj.io/rbac-rule-precedence: "0"
           ingress:
             enabled: true
             ingressClassName: nginx
@@ -41,13 +45,6 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: argo-workflows
-  ignoreDifferences:
-    - group: ""
-      kind: ConfigMap
-      name: argo-workflows-workflow-controller-configmap
-      namespace: argo-workflows
-      jsonPointers:
-        - /data/rbac.config
   syncPolicy:
     automated:
       prune: true
