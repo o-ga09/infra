@@ -9,6 +9,18 @@ spec:
     repoURL: https://argoproj.github.io/argo-helm
     targetRevision: "0.36.0"
     chart: argo-workflows
+    helm:
+      values: |
+        server:
+          ingress:
+            enabled: true
+            className: nginx
+            hosts:
+              - argo-workflows.home.local
+              - argo-workflows.o-ga09.com
+            annotations:
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+              nginx.ingress.kubernetes.io/ssl-redirect: "false"
   destination:
     server: https://kubernetes.default.svc
     namespace: argo-workflows
