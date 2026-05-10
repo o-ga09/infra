@@ -181,6 +181,16 @@ spec:
             secretKeyRef:
               name: line-bot-secret
               key: LLM_PROVIDER
+        - name: LIFF_URL
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: LIFF_URL
+        - name: LIFF_ID
+          valueFrom:
+            secretKeyRef:
+              name: line-bot-secret
+              key: LIFF_ID
         - name: METRICS_PORT
           value: "9090"
         resources:
