@@ -15,7 +15,9 @@ spec:
           authMode: sso
           sso:
             issuer: https://argocd.o-ga09.com/api/dex
-            clientId: "argo-workflows"
+            clientId:
+              name: argo-workflows-sso-secret
+              key: client-id
             clientSecret:
               name: argo-workflows-sso-secret
               key: client-secret
