@@ -14,7 +14,7 @@ data:
     staticClients:
     - id: argo-workflows
       name: Argo Workflows
-      secret: $argo-workflows-sso-tokens:dex.clientSecret
+      secret: $dex.argo-workflows.clientSecret
       redirectURIs:
       - https://argo-workflows.o-ga09.com/oauth2/callback
     connectors:
