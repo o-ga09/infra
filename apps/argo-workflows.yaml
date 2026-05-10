@@ -14,7 +14,7 @@ spec:
         server:
           ingress:
             enabled: true
-            className: nginx
+            ingressClassName: nginx
             hosts:
               - argo-workflows.home.local
               - argo-workflows.o-ga09.com
