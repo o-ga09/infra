@@ -13,4 +13,4 @@ spec:
         args: ["--job-type", "delete-event-data-90days"] 
         envFrom:
           - secretRef:
-              name: line-bot-secret # line-bot-secretから環境変数を読み込む
+              name: line-bot-secret
