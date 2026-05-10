@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: remind-72hr-unanswered
+  namespace: argo-workflows
+spec:
+  entrypoint: remind-job
+  templates:
+    - name: remind-job
+      container:
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-kanji/worker:f9c02854a85d36da617e3bde90b5fa91b97662fc
+        command: ["/app/batch"]
+        args: ["--job-type", "remind-72hr-unanswered"]
+        envFrom:
+          - secretRef:
+              name: line-bot-secret # line-bot-secretから環境変数を読み込む

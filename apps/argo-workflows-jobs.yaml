@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-workflows-jobs
+  namespace: argocd # Argo CD が Application を管理するネームスペース
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/o-ga09/infra # このリポジトリのURL
+    targetRevision: main
+    path: manifests/workflows # Workflow定義が格納されているパス
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-workflows # Workflowをデプロイするネームスペース
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true # argo-workflows ネームスペースがなければ作成

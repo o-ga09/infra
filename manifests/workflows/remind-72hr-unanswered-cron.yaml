@@ -1,0 +1,9 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: remind-72hr-unanswered-cron
+  namespace: argo-workflows
+spec:
+  schedule: "0 * * * *"
+  workflowTemplateRef:
+    name: remind-72hr-unanswered

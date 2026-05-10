@@ -1,0 +1,9 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: delete-event-data-90days-cron
+  namespace: argo-workflows
+spec:
+  schedule: "0 3 * * *"
+  workflowTemplateRef:
+    name: delete-event-data-90days

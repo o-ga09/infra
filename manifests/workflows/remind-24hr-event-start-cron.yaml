@@ -1,0 +1,9 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: remind-24hr-event-start-cron
+  namespace: argo-workflows
+spec:
+  schedule: "*/30 * * * *"
+  workflowTemplateRef:
+    name: remind-24hr-event-start

@@ -1,0 +1,9 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: remind-payment-due-overdue-cron
+  namespace: argo-workflows
+spec:
+  schedule: "0 * * * *"
+  workflowTemplateRef:
+    name: remind-payment-due-overdue
