@@ -11,6 +11,12 @@ data:
   admin.enabled: "false"
   dex.config: |
     issuer: https://argocd.o-ga09.com/api/dex
+    staticClients:
+    - id: argo-workflows
+      name: Argo Workflows
+      secret: $argo-workflows-sso-tokens:dex.clientSecret
+      redirectURIs:
+      - https://argo-workflows.o-ga09.com/oauth2/callback
     connectors:
     - type: google
       id: google

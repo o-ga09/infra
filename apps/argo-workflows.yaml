@@ -12,6 +12,20 @@ spec:
     helm:
       values: |
         server:
+          authMode: sso
+          sso:
+            issuer: https://argocd.o-ga09.com/api/dex
+            clientId: "argo-workflows"
+            clientSecret:
+              name: argo-workflows-sso-secret
+              key: client-secret
+            redirectUrl: https://argo-workflows.o-ga09.com/oauth2/callback
+            scopes:
+              - openid
+              - profile
+              - email
+          rbac:
+            enabled: true
           ingress:
             enabled: true
             ingressClassName: nginx
