@@ -28,7 +28,7 @@ spec:
               - profile
               - email
           rbac:
-            enabled: true
+            enabled: false
           serviceAccount:
             annotations:
               workflows.argoproj.io/rbac-rule: "'true' == 'true'"
