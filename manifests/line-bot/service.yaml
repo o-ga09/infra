@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: line-bot-webhook
   namespace: line-bot
+  labels:
+    app: line-bot-webhook
 spec:
   selector:
     app: line-bot-webhook
@@ -20,6 +22,8 @@ kind: Service
 metadata:
   name: line-bot-worker
   namespace: line-bot
+  labels:
+    app: line-bot-worker
 spec:
   selector:
     app: line-bot-worker
