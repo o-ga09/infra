@@ -338,14 +338,14 @@ data:
             "legend": {"calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "multi", "sort": "desc"}
           },
-          "title": "Worker Goroutine 数",
-          "description": "実行中のGoroutine数（Worker負荷の代理指標）。カスタムメトリクス実装後は削除可。",
+          "title": "Worker ジョブ スループット",
+          "description": "ジョブタイプ別の処理数/秒",
           "type": "timeseries",
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
-              "expr": "go_goroutines{job=\"line-bot-worker\"}",
-              "legendFormat": "goroutines",
+              "expr": "sum(rate(worker_jobs_total[1m])) by (job_type, status)",
+              "legendFormat": "{{job_type}} ({{status}})",
               "refId": "A"
             }
           ]
@@ -366,7 +366,7 @@ data:
             "legend": {"calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "multi", "sort": "desc"}
           },
-          "title": "Worker 処理時間 ※未実装",
+          "title": "Worker 処理時間",
           "description": "アプリに worker_job_duration_seconds ヒストグラム（label: job_type）を追加してください",
           "type": "timeseries",
           "targets": [
@@ -411,8 +411,8 @@ data:
             "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
             "textMode": "auto"
           },
-          "title": "Reply 送信数 ※未実装",
-          "description": "アプリに line_bot_reply_total カウンターを追加してください",
+          "title": "Reply 送信数",
+          "description": "LINE Reply API 呼び出し数 (status: ok/error)",
           "type": "stat",
           "targets": [
             {
@@ -443,8 +443,8 @@ data:
             "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
             "textMode": "auto"
           },
-          "title": "Push 通知数 ※未実装",
-          "description": "アプリに line_bot_push_total カウンターを追加してください",
+          "title": "Push 通知数",
+          "description": "LINE Push API 呼び出し数 (status: ok/error)",
           "type": "stat",
           "targets": [
             {
@@ -471,8 +471,8 @@ data:
             "legend": {"calcs": ["sum", "max"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "multi", "sort": "desc"}
           },
-          "title": "Reply / Push 推移 ※未実装",
-          "description": "line_bot_reply_total, line_bot_push_total が必要",
+          "title": "Reply / Push 推移",
+          "description": "",
           "type": "timeseries",
           "targets": [
             {
@@ -512,14 +512,13 @@ data:
             "legend": {"calcs": ["mean", "sum"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "multi", "sort": "desc"}
           },
-          "title": "外部API 呼び出し回数 ※未実装",
-          "description": "アプリに external_api_requests_total{service=\"google_maps|openai|gemini\"} カウンターを追加してください",
+          "title": "Google Maps API 呼び出し回数",
           "type": "timeseries",
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
-              "expr": "sum(rate(external_api_requests_total{namespace=\"line-bot\"}[5m])) by (service)",
-              "legendFormat": "{{service}}",
+              "expr": "sum(rate(googlemaps_api_requests_total[5m])) by (api_type)",
+              "legendFormat": "{{api_type}}",
               "refId": "A"
             }
           ]
@@ -530,31 +529,36 @@ data:
             "defaults": {
               "color": {"mode": "palette-classic"},
               "custom": {"fillOpacity": 5, "lineWidth": 2, "showPoints": "never"},
-              "unit": "s"
+              "unit": "short"
             },
             "overrides": []
           },
           "gridPos": {"h": 8, "w": 12, "x": 12, "y": 41},
           "id": 41,
           "options": {
-            "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"},
+            "legend": {"calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "multi", "sort": "desc"}
           },
-          "title": "外部API レイテンシ ※未実装",
-          "description": "アプリに external_api_duration_seconds ヒストグラム{service=\"google_maps|openai|gemini\"} を追加してください",
+          "title": "Gemini トークン使用量",
           "type": "timeseries",
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
-              "expr": "histogram_quantile(0.99, sum(rate(external_api_duration_seconds_bucket{namespace=\"line-bot\"}[5m])) by (le, service))",
-              "legendFormat": "P99 {{service}}",
+              "expr": "sum(rate(gemini_prompt_tokens_total[5m])) by (method)",
+              "legendFormat": "入力 ({{method}})",
               "refId": "A"
             },
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
-              "expr": "histogram_quantile(0.50, sum(rate(external_api_duration_seconds_bucket{namespace=\"line-bot\"}[5m])) by (le, service))",
-              "legendFormat": "P50 {{service}}",
+              "expr": "sum(rate(gemini_candidate_tokens_total[5m])) by (method)",
+              "legendFormat": "出力 ({{method}})",
               "refId": "B"
+            },
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(rate(gemini_thoughts_tokens_total[5m])) by (method)",
+              "legendFormat": "思考 ({{method}})",
+              "refId": "C"
             }
           ]
         },
@@ -585,8 +589,8 @@ data:
             "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
             "textMode": "auto"
           },
-          "title": "DAU ※未実装",
-          "description": "アプリに line_bot_daily_active_users ゲージを追加してください",
+          "title": "DAU",
+          "description": "updated_at が24時間以内のユーザー数",
           "type": "stat",
           "targets": [
             {
@@ -617,8 +621,8 @@ data:
             "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
             "textMode": "auto"
           },
-          "title": "MAU ※未実装",
-          "description": "アプリに line_bot_monthly_active_users ゲージを追加してください",
+          "title": "MAU",
+          "description": "updated_at が30日以内のユーザー数",
           "type": "stat",
           "targets": [
             {
@@ -645,8 +649,8 @@ data:
             "legend": {"calcs": ["max", "lastNotNull"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "multi", "sort": "desc"}
           },
-          "title": "アクティブユーザー推移 ※未実装",
-          "description": "line_bot_daily_active_users, line_bot_monthly_active_users が必要",
+          "title": "アクティブユーザー推移",
+          "description": "",
           "type": "timeseries",
           "targets": [
             {
@@ -831,6 +835,176 @@ data:
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
               "expr": "mysql_global_status_innodb_buffer_pool_read_requests / (mysql_global_status_innodb_buffer_pool_read_requests + mysql_global_status_innodb_buffer_pool_reads) * 100",
               "legendFormat": "",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 76},
+          "id": 108,
+          "title": "コスト可視化",
+          "type": "row"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.5}, {"color": "red", "value": 2}]},
+              "unit": "currencyUSD",
+              "decimals": 4
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 8, "x": 0, "y": 77},
+          "id": 80,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
+            "textMode": "auto"
+          },
+          "title": "推定コスト合計 (選択期間)",
+          "description": "Gemini 2.5 Flash: 入力$0.15/1M・出力$0.60/1M・思考$3.50/1M / Google Maps: TextSearch$0.032・PlacesPhoto$0.007",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(gemini_prompt_tokens_total[$__range]))     * 0.00000015 + sum(increase(gemini_candidate_tokens_total[$__range])) * 0.0000006  + sum(increase(gemini_thoughts_tokens_total[$__range]))   * 0.0000035  + sum(increase(googlemaps_api_requests_total{api_type=\"text_search\"}[$__range]))   * 0.032 + sum(increase(googlemaps_api_requests_total{api_type=\"places_photo\"}[$__range])) * 0.007",
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.3}, {"color": "red", "value": 1}]},
+              "unit": "currencyUSD",
+              "decimals": 4
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 8, "x": 8, "y": 77},
+          "id": 81,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
+            "textMode": "auto"
+          },
+          "title": "Gemini 推定コスト (選択期間)",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(gemini_prompt_tokens_total[$__range]))     * 0.00000015 + sum(increase(gemini_candidate_tokens_total[$__range])) * 0.0000006  + sum(increase(gemini_thoughts_tokens_total[$__range]))   * 0.0000035",
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.2}, {"color": "red", "value": 1}]},
+              "unit": "currencyUSD",
+              "decimals": 4
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 8, "x": 16, "y": 77},
+          "id": 82,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
+            "textMode": "auto"
+          },
+          "title": "Google Maps 推定コスト (選択期間)",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(googlemaps_api_requests_total{api_type=\"text_search\"}[$__range]))   * 0.032 + sum(increase(googlemaps_api_requests_total{api_type=\"places_photo\"}[$__range])) * 0.007",
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 81},
+          "id": 83,
+          "options": {
+            "legend": {"calcs": ["mean", "sum", "max"], "displayMode": "table", "placement": "bottom"},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "title": "Gemini トークン内訳 (累積)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(gemini_prompt_tokens_total[1h])) by (method)",
+              "legendFormat": "入力 ({{method}})",
+              "refId": "A"
+            },
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(gemini_candidate_tokens_total[1h])) by (method)",
+              "legendFormat": "出力 ({{method}})",
+              "refId": "B"
+            },
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(gemini_thoughts_tokens_total[1h])) by (method)",
+              "legendFormat": "思考 ({{method}})",
+              "refId": "C"
+            }
+          ]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 81},
+          "id": 84,
+          "options": {
+            "legend": {"calcs": ["mean", "sum", "max"], "displayMode": "table", "placement": "bottom"},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "title": "Google Maps API 呼び出し内訳 (累積)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "datasource": {"type": "prometheus", "uid": "${datasource}"},
+              "expr": "sum(increase(googlemaps_api_requests_total[1h])) by (api_type)",
+              "legendFormat": "{{api_type}}",
               "refId": "A"
             }
           ]
