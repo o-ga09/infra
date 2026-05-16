@@ -205,7 +205,7 @@ data:
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
-              "expr": "sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\"}[1m])) by (http_route)",
+              "expr": "sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\", http_route!=\"\"}[1m])) by (http_route)",
               "legendFormat": "{{http_route}}",
               "refId": "A"
             }
