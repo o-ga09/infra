@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting-policies
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  policies.yaml: |
+    apiVersion: 1
+    policies:
+      - orgId: 1
+        receiver: slack-alerts
+        group_by: ['grafana_folder', 'alertname']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h

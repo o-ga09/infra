@@ -21,6 +21,11 @@ grafana:
       label: grafana_datasource
       labelValue: "1"
       searchNamespace: monitoring
+    alerts:
+      enabled: true
+      label: grafana_alert
+      labelValue: "1"
+      searchNamespace: monitoring
 
 prometheus:
   prometheusSpec:

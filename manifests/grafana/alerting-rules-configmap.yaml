@@ -1,0 +1,176 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting-rules
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  alert-rules.yaml: |
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: mh-api
+        folder: Alerts
+        interval: 1m
+        rules:
+          - uid: mh-api-high-error-rate
+            title: "[MH-API] 5xxエラーレート高騰"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\", http_response_status_code=~\"5..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\"}[5m])) * 100 or vector(0)"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 5
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: NoData
+            execErrState: Error
+            for: 5m
+            annotations:
+              summary: "MH-API の5xxエラーレートが5%を超えました"
+            labels: {}
+            isPaused: false
+
+          - uid: mh-api-high-latency
+            title: "[MH-API] P99レイテンシ高騰"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket{namespace=\"mh-api\"}[5m])) by (le))"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 1
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: NoData
+            execErrState: Error
+            for: 5m
+            annotations:
+              summary: "MH-API のP99レイテンシが1秒を超えました"
+            labels: {}
+            isPaused: false
+
+      - orgId: 1
+        name: line-bot
+        folder: Alerts
+        interval: 1m
+        rules:
+          - uid: line-bot-high-error-rate
+            title: "[Line-Bot] 5xxエラーレート高騰"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "sum(rate(http_server_request_duration_seconds_count{namespace=\"line-bot\", http_response_status_code=~\"5..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{namespace=\"line-bot\"}[5m])) * 100 or vector(0)"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 5
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: NoData
+            execErrState: Error
+            for: 5m
+            annotations:
+              summary: "Line-Bot の5xxエラーレートが5%を超えました"
+            labels: {}
+            isPaused: false
