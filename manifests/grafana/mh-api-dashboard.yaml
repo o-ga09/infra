@@ -303,10 +303,15 @@ data:
             "legend": {"calcs": ["sum"], "displayMode": "table", "placement": "bottom"},
             "tooltip": {"mode": "single", "sort": "none"},
             "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 200
+            "xTickLabelSpacing": 200,
+            "xField": "http_response_status_code"
           },
           "title": "ステータスコード別リクエスト数",
           "type": "barchart",
+          "transformations": [
+            {"id": "labelsToFields", "options": {"mode": "columns"}},
+            {"id": "merge", "options": {}}
+          ],
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
