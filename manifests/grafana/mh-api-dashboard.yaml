@@ -101,7 +101,7 @@ data:
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
-              "expr": "sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\", http_response_status_code=~\"5..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\"}[5m])) * 100 or vector(0)",
+              "expr": "sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\", http_response_status_code=~\"[45]..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{namespace=\"mh-api\"}[5m])) * 100 or vector(0)",
               "legendFormat": "",
               "refId": "A"
             }
@@ -304,13 +304,12 @@ data:
             "tooltip": {"mode": "single", "sort": "none"},
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 200,
-            "xField": "http_response_status_code"
+            "xField": "Field"
           },
           "title": "ステータスコード別リクエスト数",
           "type": "barchart",
           "transformations": [
-            {"id": "labelsToFields", "options": {"mode": "columns"}},
-            {"id": "merge", "options": {}}
+            {"id": "reduce", "options": {"reducers": ["lastNotNull"], "includeTimeField": false, "mode": "reduceFields"}}
           ],
           "targets": [
             {
