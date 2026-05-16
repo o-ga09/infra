@@ -3,10 +3,16 @@ kind: Service
 metadata:
   name: mh-agent
   namespace: mh-api
+  labels:
+    app: mh-agent
 spec:
   selector:
     app: mh-agent
   ports:
   - port: 8080
     targetPort: 8080
+    name: http
+  - port: 9090
+    targetPort: 9090
+    name: metrics
   type: ClusterIP

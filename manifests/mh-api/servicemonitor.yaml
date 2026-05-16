@@ -18,3 +18,24 @@ spec:
   namespaceSelector:
     matchNames:
     - mh-api
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mh-agent
+  namespace: mh-api
+  labels:
+    app: mh-agent
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: mh-agent
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - mh-api
