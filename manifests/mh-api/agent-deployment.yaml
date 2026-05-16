@@ -18,7 +18,7 @@ spec:
       - name: gar-secret
       containers:
       - name: mh-agent
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-agent:53a4f86c231aeb49fbc8a225e1a63025b39d5e77
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/mh-agent:35e3574a8d32f5d1aa1cf5d2b935dea4aec01c81
         ports:
         - containerPort: 8080
         - containerPort: 9090
