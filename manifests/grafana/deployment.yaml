@@ -15,4 +15,4 @@ spec:
         - secretRef:
             name: grafana-google-oauth
         - secretRef:
-            name: grafana-slack
+            name: monitoring-secret
