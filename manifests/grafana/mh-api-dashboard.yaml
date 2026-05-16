@@ -297,20 +297,13 @@ data:
           "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
           "id": 13,
           "options": {
-            "barWidth": 0.97,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "legend": {"calcs": ["sum"], "displayMode": "table", "placement": "bottom"},
+            "legend": {"calcs": ["value", "percent"], "displayMode": "table", "placement": "right"},
+            "pieType": "pie",
             "tooltip": {"mode": "single", "sort": "none"},
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 200,
-            "xField": "Field"
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}
           },
           "title": "ステータスコード別リクエスト数",
-          "type": "barchart",
-          "transformations": [
-            {"id": "reduce", "options": {"reducers": ["lastNotNull"], "includeTimeField": false, "mode": "reduceFields"}}
-          ],
+          "type": "piechart",
           "targets": [
             {
               "datasource": {"type": "prometheus", "uid": "${datasource}"},
