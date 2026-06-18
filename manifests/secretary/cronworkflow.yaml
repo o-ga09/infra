@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: secretary-gmail-batch
+  # 既存の CronWorkflow と同じ argo-workflows namespace に配置（コントローラーの対象 namespace）
+  namespace: argo-workflows
+spec:
+  schedule: "0 8 * * *"          # 毎日 08:00
+  timezone: "Asia/Tokyo"
+  concurrencyPolicy: "Forbid"
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  workflowSpec:
+    entrypoint: run-batch
+    activeDeadlineSeconds: 600
+    imagePullSecrets:
+    - name: gar-secret
+    templates:
+    - name: run-batch            # ← アプリ側 CI が select(.name == "run-batch") で .container.image を更新。変更禁止
+      retryStrategy:
+        limit: "2"
+        retryPolicy: "OnFailure"
+      container:                 # ← script: ではなく container: で書く（CI 契約）
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/adk-go-sample:latest
+        command: ["/app/batch"]
+        env:
+        - name: APP_NAME
+          value: "gmail_secretary"
+        - name: ACTION_MODE
+          value: "label_only"    # 初回検証は dry_run 推奨。順に dry_run → label_only →（任意）auto_trash
+        - name: GMAIL_QUERY
+          value: "in:inbox is:unread newer_than:1d"
+        envFrom:
+        - secretRef:
+            name: secretary-secrets
