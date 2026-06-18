@@ -20,7 +20,7 @@ spec:
         - name: gar-secret
       containers:
         - name: api # ← アプリ側 CI が select(.name == "api") で .image を更新。変更禁止
-          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:e73d2a0100a7
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:03b3e4be37d8
           command: ["/app/api"]
           ports:
             - containerPort: 8080
