@@ -35,7 +35,7 @@ spec:
                 name: secretary-secrets
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/list-apps
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
