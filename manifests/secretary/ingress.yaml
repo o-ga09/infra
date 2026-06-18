@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: secretary
+  namespace: secretary
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ai-agent.home.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: secretary-api
+            port:
+              number: 8080
+  - host: ai-agent.o-ga09.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: secretary-api
+            port:
+              number: 8080
+
