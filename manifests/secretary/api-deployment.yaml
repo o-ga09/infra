@@ -17,30 +17,30 @@ spec:
         app: secretary-api
     spec:
       imagePullSecrets:
-      - name: gar-secret
+        - name: gar-secret
       containers:
-      - name: api                       # ← アプリ側 CI が select(.name == "api") で .image を更新。変更禁止
-        image: asia-northeast1-docker.pkg.dev/mh-api-389212/mh-api/adk-go-sample:latest
-        command: ["/app/api"]
-        ports:
-        - containerPort: 8080
-        env:
-        - name: ADK_LAUNCHER
-          value: "prod"                 # headless API + A2A（Web UI なし）
-        - name: APP_NAME
-          value: "gmail_secretary"
-        envFrom:
-        - secretRef:
-            name: secretary-secrets
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        resources:
-          requests:
-            cpu: "50m"
-            memory: "128Mi"
-          limits:
-            memory: "512Mi"
+        - name: api # ← アプリ側 CI が select(.name == "api") で .image を更新。変更禁止
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:e73d2a0100a7
+          command: ["/app/api"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ADK_LAUNCHER
+              value: "prod" # headless API + A2A（Web UI なし）
+            - name: APP_NAME
+              value: "gmail_secretary"
+          envFrom:
+            - secretRef:
+                name: secretary-secrets
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
