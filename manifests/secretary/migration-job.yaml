@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: secretary-migration
+  namespace: secretary
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+      - name: gar-secret
+      containers:
+      - name: migration # ← アプリ側 CI が select(.name == "migration") で .image を更新。変更禁止
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:03b3e4be37d8
+        command: ["/app/migrate", "-command", "up"]
+        env:
+        - name: MYSQL_DSN
+          valueFrom:
+            secretKeyRef:
+              name: secretary-secrets
+              key: MYSQL_DSN
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
