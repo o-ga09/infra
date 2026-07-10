@@ -15,3 +15,8 @@ data:
         group_wait: 30s
         group_interval: 5m
         repeat_interval: 4h
+        routes:
+          - receiver: slack-alerts-apps
+            object_matchers:
+              - ['grafana_folder', '=', 'Alerts']
+            continue: false

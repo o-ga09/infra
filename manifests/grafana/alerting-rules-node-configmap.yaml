@@ -11,7 +11,7 @@ data:
     groups:
       - orgId: 1
         name: node-metrics
-        folder: Alerts
+        folder: Infra
         interval: 1m
         rules:
           - uid: node-high-cpu-usage

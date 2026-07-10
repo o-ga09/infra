@@ -23,3 +23,17 @@ data:
                 {{ range .Labels.SortedPairs }}  • {{ .Name }}: `{{ .Value }}`
                 {{ end }}{{ end }}
             disableResolveMessage: false
+      - orgId: 1
+        name: slack-alerts-apps
+        receivers:
+          - uid: slack-receiver-apps
+            type: slack
+            settings:
+              url: ${SLACK_WEBHOOK_URL_APPS}
+              title: |
+                [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+              text: |
+                {{ range .Alerts }}*{{ .Annotations.summary }}*
+                {{ range .Labels.SortedPairs }}  • {{ .Name }}: `{{ .Value }}`
+                {{ end }}{{ end }}
+            disableResolveMessage: false
