@@ -62,7 +62,7 @@ data:
             execErrState: Error
             for: 10m
             annotations:
-              summary: "ノード {{ $labels.instance }} のCPU使用率が85%を超えました"
+              summary: "ノード {{ $labels.instance }} のCPU使用率が {{ $values.A }}% です（閾値85%）"
             labels: {}
             isPaused: false
 
@@ -114,7 +114,7 @@ data:
             execErrState: Error
             for: 10m
             annotations:
-              summary: "ノード {{ $labels.instance }} のメモリ使用率が85%を超えました"
+              summary: "ノード {{ $labels.instance }} のメモリ使用率が {{ $values.A }}% です（閾値85%）"
             labels: {}
             isPaused: false
 
@@ -166,7 +166,7 @@ data:
             execErrState: Error
             for: 15m
             annotations:
-              summary: "ノード {{ $labels.instance }} のディスク使用率(/)が85%を超えました"
+              summary: "ノード {{ $labels.instance }} のディスク使用率(/)が {{ $values.A }}% です（閾値85%）"
             labels: {}
             isPaused: false
 
@@ -218,6 +218,6 @@ data:
             execErrState: Error
             for: 5m
             annotations:
-              summary: "ノード {{ $labels.instance }} の node-exporter からメトリクスが取得できません(ホストダウンの可能性)"
+              summary: "ノード {{ $labels.instance }} の node-exporter からメトリクスが取得できません(up={{ $values.A }}, ホストダウンの可能性)"
             labels: {}
             isPaused: false

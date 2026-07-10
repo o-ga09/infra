@@ -16,6 +16,7 @@ data:
             type: slack
             settings:
               url: ${SLACK_WEBHOOK_URL}
+              mentionUsers: U0BG9HEBVBK
               title: |
                 [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
               text: |
@@ -30,6 +31,7 @@ data:
             type: slack
             settings:
               url: ${SLACK_WEBHOOK_URL_APPS}
+              mentionUsers: U0BG9HEBVBK
               title: |
                 [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
               text: |

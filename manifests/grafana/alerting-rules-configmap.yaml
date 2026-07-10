@@ -62,7 +62,7 @@ data:
             execErrState: Error
             for: 5m
             annotations:
-              summary: "MH-API の5xxエラーレートが5%を超えました"
+              summary: "MH-API の5xxエラーレートが {{ $values.A }}% です（閾値5%）"
             labels: {}
             isPaused: false
 
@@ -114,7 +114,7 @@ data:
             execErrState: Error
             for: 5m
             annotations:
-              summary: "MH-API のP99レイテンシが1秒を超えました"
+              summary: "MH-API のP99レイテンシが {{ $values.A }}秒 です（閾値1秒）"
             labels: {}
             isPaused: false
 
@@ -171,6 +171,6 @@ data:
             execErrState: Error
             for: 5m
             annotations:
-              summary: "Line-Bot の5xxエラーレートが5%を超えました"
+              summary: "Line-Bot の5xxエラーレートが {{ $values.A }}% です（閾値5%）"
             labels: {}
             isPaused: false
