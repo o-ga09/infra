@@ -1,0 +1,223 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting-rules-node
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  alert-rules-node.yaml: |
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: node-metrics
+        folder: Alerts
+        interval: 1m
+        rules:
+          - uid: node-high-cpu-usage
+            title: "[Node] CPU使用率高騰"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"node-exporter\", mode=\"idle\"}[5m])) * 100)"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: NoData
+            execErrState: Error
+            for: 10m
+            annotations:
+              summary: "ノード {{ $labels.instance }} のCPU使用率が85%を超えました"
+            labels: {}
+            isPaused: false
+
+          - uid: node-high-memory-usage
+            title: "[Node] メモリ使用率高騰"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "(1 - (node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})) * 100"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: NoData
+            execErrState: Error
+            for: 10m
+            annotations:
+              summary: "ノード {{ $labels.instance }} のメモリ使用率が85%を超えました"
+            labels: {}
+            isPaused: false
+
+          - uid: node-high-disk-usage
+            title: "[Node] ディスク使用率高騰"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 900
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "(1 - (node_filesystem_avail_bytes{job=\"node-exporter\", fstype!~\"tmpfs|overlay\", mountpoint=\"/\"} / node_filesystem_size_bytes{job=\"node-exporter\", fstype!~\"tmpfs|overlay\", mountpoint=\"/\"})) * 100"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: NoData
+            execErrState: Error
+            for: 15m
+            annotations:
+              summary: "ノード {{ $labels.instance }} のディスク使用率(/)が85%を超えました"
+            labels: {}
+            isPaused: false
+
+          - uid: node-exporter-down
+            title: "[Node] node-exporter応答なし"
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: "up{job=\"node-exporter\"}"
+                  instant: true
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: '-100'
+                model:
+                  type: classic_conditions
+                  refId: C
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 1
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+            noDataState: Alerting
+            execErrState: Error
+            for: 5m
+            annotations:
+              summary: "ノード {{ $labels.instance }} の node-exporter からメトリクスが取得できません(ホストダウンの可能性)"
+            labels: {}
+            isPaused: false
