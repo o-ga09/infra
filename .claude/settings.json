@@ -14,10 +14,10 @@
       "Bash(pkill -f \"port-forward.*9091\")",
       "Bash(pkill -f \"port-forward.*909\")",
       "Bash(echo \"exit: $?\")",
-      "Skill(create-pr)"
+      "Skill(create-pr)",
+      "Bash(git push *)"
     ],
     "ask": [
-      "Bash(git push *)",
       "Bash(kubectl apply *)",
       "Bash(kubectl exec *)",
       "Bash(kubectl rollout *)",
