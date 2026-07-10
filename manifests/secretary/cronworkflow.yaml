@@ -25,7 +25,7 @@ spec:
           limit: "2"
           retryPolicy: "OnFailure"
         container: # ← script: ではなく container: で書く（CI 契約）
-          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:37fa0e8071ff
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:3f00bcc4e60a
           command: ["/app/batch"]
           env:
             - name: APP_NAME
