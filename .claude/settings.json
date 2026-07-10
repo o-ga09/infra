@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kubectl get *)",
+      "Bash(kubectl logs *)",
+      "Bash(kubectl port-forward *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git pull *)",
+      "Bash(git ls-remote *)",
+      "Bash(curl -s http://localhost:9091/metrics)",
+      "Bash(curl -s http://localhost:9092/metrics)",
+      "Bash(awk -F'{' '{print $1}')",
+      "Bash(pkill -f \"port-forward.*9091\")",
+      "Bash(pkill -f \"port-forward.*909\")",
+      "Bash(echo \"exit: $?\")",
+      "Skill(create-pr)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(kubectl apply *)",
+      "Bash(kubectl exec *)",
+      "Bash(kubectl rollout *)",
+      "Bash(kubectl label *)"
+    ],
+    "deny": [
+      "Read(/manifests/**/secret.yaml)",
+      "Edit(/manifests/**/secret.yaml)"
+    ]
+  }
+}
