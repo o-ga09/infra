@@ -25,7 +25,7 @@ spec:
           limit: "2"
           retryPolicy: "OnFailure"
         container: # ← script: ではなく container: で書く（CI 契約）
-          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:05bcf2695bb4
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:cf1c784e454f
           command: ["/app/batch"]
           env:
             - name: APP_NAME
@@ -75,13 +75,13 @@ spec:
           limit: "2"
           retryPolicy: "OnFailure"
         container:
-          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:05bcf2695bb4
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:cf1c784e454f
           command: ["/app/batch", "-command", "llm-cost-report"]
           env:
             - name: LLM_COST_DAILY_ALERT_USD
               value: "1.0" # この額(USD)以上の推定コストが出た日は警告付きで通知。0で警告を無効化
-            # - name: LLM_PRICING_JSON
-            #   value: '{"gemini-2.5-flash":{"inputPerMillionUSD":0.3,"outputPerMillionUSD":2.5,"cachedInputPerMillionUSD":0.075}}'
+              # - name: LLM_PRICING_JSON
+              #   value: '{"gemini-2.5-flash":{"inputPerMillionUSD":0.3,"outputPerMillionUSD":2.5,"cachedInputPerMillionUSD":0.075}}'
           envFrom:
             - secretRef:
                 name: secretary-secrets # MYSQL_DSN / SLACK_BOT_TOKEN / SLACK_CHANNEL_ID を共有
