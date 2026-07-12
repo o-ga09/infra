@@ -37,3 +37,51 @@ spec:
           envFrom:
             - secretRef:
                 name: secretary-secrets
+---
+# LLM利用コストの日次通知(adk-go-sample #16)。前日分のGemini推定コスト・トークン数・
+# トリガー別内訳・当月累計をSlackに通知する。record処理自体は cmd/batch(mail)実行時に
+# 常時行われるので、このCronWorkflowは「前日分を集計してSlack投稿するだけ」の軽い処理。
+#
+# 同じファイル内に2つ目のCronWorkflowとして追加している。テンプレート名を上と同じ
+# run-batch にしているのは、アプリ側CIのyq書き換え式
+#   select(.name == "run-batch") | .container.image
+# がマルチドキュメントYAMLの各ドキュメントに対して適用される(yq -i の既定動作)ため、
+# アプリ側CIワークフローを一切変更せずに、この2つ目のCronWorkflowのimageも
+# secretary-gmail-batch と同時に自動更新されるようにするため。テンプレート名を変えると
+# このCronWorkflowだけimageタグが更新されなくなるので変更禁止。
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: secretary-llm-cost-report
+  namespace: argo-workflows
+spec:
+  schedule: "15 8 * * *" # 毎日 08:15(secretary-gmail-batch の後)
+  timezone: "Asia/Tokyo"
+  concurrencyPolicy: "Forbid"
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  workflowSpec:
+    entrypoint: run-batch
+    activeDeadlineSeconds: 300
+    ttlStrategy:
+      secondsAfterSuccess: 3600
+      secondsAfterFailure: 86400
+    imagePullSecrets:
+      - name: gar-secret
+    templates:
+      - name: run-batch # ← 上のCronWorkflowと同じ理由でこの名前のまま。変更禁止
+        retryStrategy:
+          limit: "2"
+          retryPolicy: "OnFailure"
+        container:
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:05bcf2695bb4
+          command: ["/app/batch", "-command", "llm-cost-report"]
+          env:
+            - name: LLM_COST_DAILY_ALERT_USD
+              value: "1.0" # この額(USD)以上の推定コストが出た日は警告付きで通知。0で警告を無効化
+            # - name: LLM_PRICING_JSON
+            #   value: '{"gemini-2.5-flash":{"inputPerMillionUSD":0.3,"outputPerMillionUSD":2.5,"cachedInputPerMillionUSD":0.075}}'
+          envFrom:
+            - secretRef:
+                name: secretary-secrets # MYSQL_DSN / SLACK_BOT_TOKEN / SLACK_CHANNEL_ID を共有
