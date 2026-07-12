@@ -25,7 +25,7 @@ spec:
           limit: "2"
           retryPolicy: "OnFailure"
         container: # ← script: ではなく container: で書く（CI 契約）
-          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:c5c3faa1f427
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:6107ba5b00ba
           command: ["/app/batch"]
           env:
             - name: APP_NAME
@@ -75,7 +75,7 @@ spec:
           limit: "2"
           retryPolicy: "OnFailure"
         container:
-          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:c5c3faa1f427
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:6107ba5b00ba
           command: ["/app/batch", "-command", "llm-cost-report"]
           env:
             - name: LLM_COST_DAILY_ALERT_USD
