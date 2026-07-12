@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: secretary-weekly-review
+  # 既存の secretary-gmail-batch と同じ argo-workflows namespace に配置
+  # (コントローラーの対象 namespace)。スケジュールが異なる(毎週 vs 毎日)ため
+  # 同じ CronWorkflow には同居させず、別リソースとして分離している。
+  namespace: argo-workflows
+spec:
+  schedule: "0 9 * * 1" # 毎週月曜 09:00
+  timezone: "Asia/Tokyo"
+  concurrencyPolicy: "Forbid"
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  workflowSpec:
+    entrypoint: run-weekly-review
+    activeDeadlineSeconds: 600
+    ttlStrategy: # 完了した Workflow(と配下の Pod)を自動削除する
+      secondsAfterSuccess: 3600 # 成功は1時間で削除
+      secondsAfterFailure: 86400 # 失敗はログ確認できるよう24時間残す
+    imagePullSecrets:
+      - name: gar-secret
+    templates:
+      # 現時点ではアプリ側 CI(.github/workflows/build-and-deploy.yml)の yq 書き換えは
+      # このテンプレートを対象にしていない(cronworkflow.yaml の run-batch のみ)。
+      # 自動更新したい場合は、アプリ側リポジトリに新しい INFRA_*_MANIFEST 変数と
+      # yq ステップを追加したうえで、ここの image を手動で合わせておくこと。
+      - name: run-weekly-review
+        retryStrategy:
+          limit: "2"
+          retryPolicy: "OnFailure"
+        container: # ← script: ではなく container: で書く(既存の run-batch と同じ流儀)
+          image: asia-northeast1-docker.pkg.dev/mh-api-389212/ai-agent/adk-go-sample:d4b90bef04b3
+          command: ["/app/batch", "-command", "weekly-review"]
+          env:
+            - name: APP_NAME
+              value: "gmail_secretary"
+          envFrom:
+            - secretRef:
+                name: secretary-secrets
