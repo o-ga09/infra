@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gourmet-mcp
+  namespace: gourmet
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: gourmet-mcp
+  template:
+    metadata:
+      labels:
+        app: gourmet-mcp
+    spec:
+      imagePullSecrets:
+      - name: gar-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      # コンテナ名は o-ga09/gourmet-mcp の CI が image 書き換えに使うため変更しない
+      - name: gourmet-mcp
+        image: asia-northeast1-docker.pkg.dev/mh-api-389212/gourmet/gourmet-mcp:24d9fd8e05cdf0a7566e99a5aad88e1dcc3ae708
+        ports:
+        - containerPort: 8080
+          name: http
+        # GOOGLE_PLACES_API_KEY / TYPESAFE_API_KEY は gourmet-mcp-secrets から読み込む
+        envFrom:
+        - secretRef:
+            name: gourmet-mcp-secrets
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

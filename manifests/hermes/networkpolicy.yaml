@@ -1,5 +1,5 @@
 # Hermes Agent はシェル実行可能な自律エージェントのため、クラスタ内サービス
-# （MySQL/Redis/mh-api 等）や自宅 LAN へは到達させず、外部 HTTP(S) と DNS のみ許可する。
+# （MySQL/Redis/mh-api 等）や自宅 LAN へは到達させず、外部 HTTP(S) と DNS、gourmet-mcp のみ許可する。
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -34,6 +34,17 @@ spec:
       port: 53
     - protocol: TCP
       port: 53
+  # 飲食店検索 MCP サーバー（クラスタ内で唯一許可する宛先）
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: gourmet
+      podSelector:
+        matchLabels:
+          app: gourmet-mcp
+    ports:
+    - protocol: TCP
+      port: 8080
   - to:
     - ipBlock:
         cidr: 0.0.0.0/0

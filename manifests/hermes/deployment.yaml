@@ -30,6 +30,9 @@ spec:
           hermes config set model.provider gemini
           hermes config set model.default gemini-3.7-flash
           hermes config set model.base_url https://generativelanguage.googleapis.com/v1beta
+          # 飲食店検索 MCP サーバー（manifests/gourmet-mcp）
+          hermes config set mcp_servers.gourmet.url http://gourmet-mcp.gourmet.svc:8080/mcp
+          hermes config set mcp_servers.gourmet.timeout 120
         volumeMounts:
         - name: data
           mountPath: /opt/data
