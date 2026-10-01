@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Repository purpose
 
 This is a GitOps repository for a homelab Kubernetes cluster (k3s) managed by ArgoCD. There is no
-application source code here — only Kubernetes manifests. Application repos (e.g.
-`o-ga09/adk-go-sample` for `secretary`) build container images elsewhere; this repo only wires those
+application source code here — only Kubernetes manifests. Application repos build
+container images elsewhere; this repo only wires those
 images into the cluster.
 
 ## Repository layout
@@ -31,7 +31,7 @@ on this repo as a production deploy, not just a commit.
 1. Create `manifests/<app-name>/` with its manifests (Deployment, Service, Ingress, Secret/SealedSecret
    as needed).
 2. Create `apps/<app-name>.yaml` (copy the ArgoCD Application shape from an existing app, e.g.
-   `apps/mh-api.yaml` or `apps/secretary.yaml`).
+   `apps/mh-api.yaml` or `apps/hermes.yaml`).
 3. `kubectl apply -f apps/<app-name>.yaml` to register it with ArgoCD.
 4. From then on, changes to `manifests/<app-name>/` deploy automatically on push.
 
@@ -74,8 +74,7 @@ kubectl get nodes
 ## Batch/workflow jobs (Argo Workflows)
 
 Scheduled jobs live in the `argo-workflows` namespace as either:
-- A single `CronWorkflow` with an inline `workflowSpec` (e.g. `manifests/secretary/cronworkflow.yaml`),
-  or
+- A single `CronWorkflow` with an inline `workflowSpec`, or
 - A `WorkflowTemplate` plus a separate `CronWorkflow` that references it via `workflowSpecRef`/
   `workflowTemplateRef` (e.g. `manifests/workflows/remind-24hr-event-start.yaml` +
   `remind-24hr-event-start-cron.yaml`).

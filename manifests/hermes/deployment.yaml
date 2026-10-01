@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-agent
+  namespace: hermes
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  # 同一データディレクトリに複数 gateway を同時に立てると壊れるため Recreate
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hermes-agent
+  template:
+    metadata:
+      labels:
+        app: hermes-agent
+    spec:
+      containers:
+      - name: hermes-agent
+        image: nousresearch/hermes-agent:v2026.9.24@sha256:2fd023efbb8d3d2b0ce1a73d028b07370cff34f567cfe0e999553e8c327ea283
+        args:
+        - gateway
+        - run
+        ports:
+        - containerPort: 8646
+          name: line-webhook
+        env:
+        - name: HERMES_INFERENCE_PROVIDER
+          value: "anthropic"
+        - name: LINE_PUBLIC_URL
+          value: "https://hermes.o-ga09.com"
+        # ANTHROPIC_API_KEY / SLACK_* / LINE_* は hermes-secrets から読み込む
+        envFrom:
+        - secretRef:
+            name: hermes-secrets
+        volumeMounts:
+        - name: data
+          mountPath: /opt/data
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "3Gi"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: hermes-data

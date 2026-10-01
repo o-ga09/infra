@@ -17,8 +17,8 @@ paths:
 4. **Never put a plaintext secret value directly on a shell command line** (even inside a heredoc,
    the command itself lands in shell history/session logs). Pipe it through variables into
    `kubectl ... | jq ... | kubeseal ...` instead.
-5. Some apps run in multiple namespaces (e.g. `secretary`: `secretary` namespace for the API,
-   `argo-workflows` namespace for its CronWorkflow) and need the same-named Secret provisioned in
+5. Some apps run in multiple namespaces (e.g. a Deployment in the app namespace plus a
+   CronWorkflow in `argo-workflows`) and need the same-named Secret provisioned in
    each namespace — sometimes with different key sets. Check `metadata.namespace` across the app's
    manifests before assuming one Secret covers everything.
 

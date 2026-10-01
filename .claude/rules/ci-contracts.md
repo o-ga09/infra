@@ -15,8 +15,6 @@ via a `yq`/`jq` `select(.name == "...")` query, then overwriting `.image` (and n
 Renaming the matched field breaks that automation silently — the next image build will fail to
 find its target and the deploy will look fine but never update.
 
-- `manifests/secretary/cronworkflow.yaml`: container template name must stay `run-batch`, and it
-  must stay a `container:` block (not `script:`).
 - `manifests/*/migration-job.yaml`: container name must stay `migration`.
 - Deployment containers (e.g. `manifests/mh-api/deployments.yaml`, `agent-deployment.yaml`,
   `mcp-deployment.yaml`): container `name` matches the app/service name (`mh-api`, `mh-agent`,

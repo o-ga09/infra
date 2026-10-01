@@ -1,8 +1,8 @@
 ---
 name: manage-sealed-secrets
 description: >
-  このリポジトリ（k8sマニフェスト用GitOpsリポジトリ）で、各アプリ（secretary, mh-api など）の
-  `secretary-secrets` 等のSecretを作成・更新するスキル。SealedSecretsコントローラーで暗号化し、
+  このリポジトリ（k8sマニフェスト用GitOpsリポジトリ）で、各アプリ（hermes, mh-api など）の
+  `hermes-secrets` 等のSecretを作成・更新するスキル。SealedSecretsコントローラーで暗号化し、
   ArgoCDが同期する。「シークレットを追加して」「secretにキーを足して」「sealed-secretを更新して」
   「Slackトークンを設定して」のように、manifests/配下のSecret/SealedSecretを触る依頼があったときに
   必ずこのスキルを使用すること。
@@ -30,11 +30,9 @@ description: >
 ## アプリごとの namespace 対応を先に確認する
 
 `manifests/<app>/*.yaml` の `metadata.namespace` を見て、そのアプリが何個の namespace で
-動いているか確認する。例えば `secretary` は API（Deployment, `secretary` namespace）と
-バッチ（CronWorkflow, `argo-workflows` namespace）の2箇所で動くため、`secretary-secrets` を
-**両方の namespace** に用意する必要がある。namespace ごとに必要なキーが異なる場合もある
-（例: Slack Socket Mode 用の `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`/`SLACK_ALLOWED_USER_ID` は
-APIサーバー側の `secretary` namespaceにしか要らない）。判断がつかない場合はユーザーに確認する。
+動いているか確認する。Deployment と CronWorkflow（`argo-workflows` namespace）の両方で動くアプリは、
+同名の Secret を**両方の namespace** に用意する必要がある。namespace ごとに必要なキーが異なる場合もある。
+判断がつかない場合はユーザーに確認する。
 
 ## 手順: 既存キーへの1キー追加/更新（推奨パス）
 
@@ -112,21 +110,18 @@ pushはユーザーに確認してから行う（ArgoCD が automated+selfHeal �
 
 ## アプリ別の必要キー
 
-### secretary (`manifests/secretary/`)
+### hermes (`manifests/hermes/`)
 
-`o-ga09/adk-go-sample` が要求する環境変数。`secretary` namespace（API）と `argo-workflows`
-namespace（バッチ）の両方に必要（※印は `secretary` namespaceのみ）。
+Hermes Agent（`nousresearch/hermes-agent`）が要求する環境変数。Secret 名 `hermes-secrets`、
+`hermes` namespace のみ。Deployment から `envFrom` で丸ごと読み込む。
 
 | キー | 内容 |
 |---|---|
-| `GOOGLE_API_KEY` | Gemini API キー |
-| `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth クライアント |
-| `GOOGLE_OAUTH_REFRESH_TOKEN` | 個人Gmailのrefresh token（アプリ repo の `cmd/oauth` で取得） |
-| `MYSQL_DSN` | 例 `user:pass@tcp(mysql.mysql.svc.cluster.local:3306)/secretary?parseTime=true` |
-| `LINE_CHANNEL_TOKEN` / `LINE_TARGET_USER_ID` | LINE Messaging API（フォールバック） |
-| `SLACK_WEBHOOK_URL` | Slack Incoming Webhook（既定の通知チャネル） |
-| `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` ※ | Slack Socket Modeでの@メンション呼び出し用。両方揃わないとリスナーは起動しない |
-| `SLACK_ALLOWED_USER_ID` ※ | @メンション呼び出しを許可するSlackユーザーID。`SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`を設定するなら必須（未設定だと誰でも呼び出せる） |
+| `ANTHROPIC_API_KEY` | Claude API キー |
+| `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` | Slack Socket Mode（`xoxb-` / `xapp-`） |
+| `SLACK_ALLOWED_USERS` | 応答を許可する Slack Member ID（カンマ区切り） |
+| `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET` | LINE Messaging API（webhook 受信） |
+| `LINE_ALLOWED_USERS` | 応答を許可する LINE ユーザーID（`U...`、カンマ区切り） |
 
 ### mh-api (`manifests/mh-api/`)
 

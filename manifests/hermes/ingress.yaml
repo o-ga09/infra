@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hermes
+  namespace: hermes
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: hermes.o-ga09.com
+    http:
+      paths:
+      # LINE webhook とメディア配信のみ公開（API サーバー/ダッシュボードは公開しない）
+      - path: /line/
+        pathType: Prefix
+        backend:
+          service:
+            name: hermes-agent
+            port:
+              number: 8646
