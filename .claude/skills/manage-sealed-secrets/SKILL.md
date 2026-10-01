@@ -117,7 +117,7 @@ Hermes Agent（`nousresearch/hermes-agent`）が要求する環境変数。Secre
 
 | キー | 内容 |
 |---|---|
-| `ANTHROPIC_API_KEY` | Claude API キー |
+| `GOOGLE_API_KEY` | Gemini API キー（Google AI Studio）。モデルは Deployment の initContainer で設定 |
 | `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` | Slack Socket Mode（`xoxb-` / `xapp-`） |
 | `SLACK_ALLOWED_USERS` | 応答を許可する Slack Member ID（カンマ区切り） |
 | `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET` | LINE Messaging API（webhook 受信） |

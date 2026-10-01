@@ -17,6 +17,22 @@ spec:
       labels:
         app: hermes-agent
     spec:
+      # gateway はモデル設定を config.yaml からしか読まないため、起動前に毎回上書きする
+      # （初回起動時は config.yaml がここで自動生成される）
+      initContainers:
+      - name: configure-model
+        image: nousresearch/hermes-agent:v2026.9.24@sha256:2fd023efbb8d3d2b0ce1a73d028b07370cff34f567cfe0e999553e8c327ea283
+        args:
+        - sh
+        - -c
+        - |
+          set -e
+          hermes config set model.provider gemini
+          hermes config set model.default gemini-3.7-flash
+          hermes config set model.base_url https://generativelanguage.googleapis.com/v1beta
+        volumeMounts:
+        - name: data
+          mountPath: /opt/data
       containers:
       - name: hermes-agent
         image: nousresearch/hermes-agent:v2026.9.24@sha256:2fd023efbb8d3d2b0ce1a73d028b07370cff34f567cfe0e999553e8c327ea283
@@ -28,10 +44,10 @@ spec:
           name: line-webhook
         env:
         - name: HERMES_INFERENCE_PROVIDER
-          value: "anthropic"
+          value: "gemini"
         - name: LINE_PUBLIC_URL
           value: "https://hermes.o-ga09.com"
-        # ANTHROPIC_API_KEY / SLACK_* / LINE_* は hermes-secrets から読み込む
+        # GOOGLE_API_KEY / SLACK_* / LINE_* は hermes-secrets から読み込む
         envFrom:
         - secretRef:
             name: hermes-secrets
