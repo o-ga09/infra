@@ -33,6 +33,27 @@ spec:
           # 飲食店検索 MCP サーバー（manifests/gourmet-mcp）
           hermes config set mcp_servers.gourmet.url http://gourmet-mcp.gourmet.svc:8080/mcp
           hermes config set mcp_servers.gourmet.timeout 120
+          # 2 回目以降の起動では gateway が s6 配下で立ち上がり、コンテナの env を引き継がない。
+          # gateway が読む /opt/data/.env に必要な env を書き出す（他のキーは保持する）
+          umask 077
+          touch /opt/data/.env
+          keys="GOOGLE_API_KEY SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL"
+          pattern=$(echo "$keys" | sed 's/ /=|^/g')
+          grep -Ev "^${pattern}=" /opt/data/.env > /opt/data/.env.tmp || true
+          for k in $keys; do
+            eval "v=\${$k:-}"
+            if [ -n "$v" ]; then printf '%s=%s\n' "$k" "$v" >> /opt/data/.env.tmp; fi
+          done
+          chown --reference=/opt/data/config.yaml /opt/data/.env.tmp
+          mv /opt/data/.env.tmp /opt/data/.env
+        env:
+        - name: HERMES_INFERENCE_PROVIDER
+          value: "gemini"
+        - name: LINE_PUBLIC_URL
+          value: "https://hermes.o-ga09.com"
+        envFrom:
+        - secretRef:
+            name: hermes-secrets
         volumeMounts:
         - name: data
           mountPath: /opt/data
@@ -50,10 +71,6 @@ spec:
           value: "gemini"
         - name: LINE_PUBLIC_URL
           value: "https://hermes.o-ga09.com"
-        # s6 配下で gateway を起動するとコンテナの env（hermes-secrets）が引き継がれず、
-        # API キーや許可ユーザーが読めなくなるため、従来のフォアグラウンド起動にする
-        - name: HERMES_GATEWAY_NO_SUPERVISE
-          value: "1"
         # GOOGLE_API_KEY / SLACK_* / LINE_* は hermes-secrets から読み込む
         envFrom:
         - secretRef:
