@@ -35,6 +35,10 @@ spec:
           hermes config set mcp_servers.gourmet.timeout 120
           # web_search で済ませてしまうため、飲食店探しでは gourmet を使うよう明示する
           hermes config set agent.system_prompt "飲食店・レストラン・カフェ・居酒屋などのお店探しやおすすめを頼まれたら、web_search は使わず必ず mcp__gourmet__search_restaurants を 1 回呼ぶこと。エリア・要望・予算は会話から引数に整理し、結果は各店の google_maps_uri を添えて簡潔に伝えること。low_confidence が true なら条件を緩めるか確認すること。"
+          # 返信に思考過程（💭 Reasoning）を付けない
+          hermes config set display.show_reasoning false
+          # 承認プロンプトなど定型メッセージを日本語にする（未翻訳のものは英語のまま）
+          hermes config set display.language ja
           # 2 回目以降の起動では gateway が s6 配下で立ち上がり、コンテナの env を引き継がない。
           # gateway が読む /opt/data/.env に必要な env を書き出す（他のキーは保持する）
           umask 077
