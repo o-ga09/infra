@@ -18,6 +18,9 @@ spec:
       - name: gar-secret
       securityContext:
         runAsNonRoot: true
+        # distroless の nonroot ユーザー。イメージ側の USER が名前指定のため UID を明示する
+        runAsUser: 65532
+        runAsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
       containers:
