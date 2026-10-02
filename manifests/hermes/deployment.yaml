@@ -127,9 +127,22 @@ spec:
               if old != target:
                   os.remove(old)
           EOF
+          # terminal ツールは bash -l で環境を取り込み、/etc/profile が PATH を固定値で上書きするため、
+          # .env の PATH は効かない。サブプロセスの HOME（{HERMES_HOME}/home）の .profile で足す
+          mkdir -p /opt/data/.claude /opt/data/home
+          profile=/opt/data/home/.profile
+          touch "$profile"
+          sed '/^# >>> claude-code >>>/,/^# <<< claude-code <<</d' "$profile" > "$profile.tmp"
+          cat >> "$profile.tmp" <<'PROFILE'
+          # >>> claude-code >>> (install-claude-code initContainer が管理)
+          case ":$PATH:" in *:/opt/data/bin:*) ;; *) PATH="/opt/data/bin:$PATH" ;; esac
+          export PATH
+          # <<< claude-code <<<
+          PROFILE
+          mv "$profile.tmp" "$profile"
           # gateway（config.yaml の所有者）が読み書きできるようにする
-          mkdir -p /opt/data/.claude
           chown -R --reference=/opt/data/config.yaml /opt/data/bin /opt/data/.claude
+          chown --reference=/opt/data/config.yaml /opt/data/home "$profile"
         env:
         - name: CLAUDE_CODE_VERSION
           value: "2.1.287"
