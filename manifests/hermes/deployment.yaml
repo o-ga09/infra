@@ -149,6 +149,82 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /opt/data
+      # gh CLI を /opt/data/bin に配り、git が GitHub に HTTPS で push できるよう認証を設定する。
+      # Hermes は GH_TOKEN / GITHUB_TOKEN を terminal に渡さない（Copilot の認証情報扱い）ため、
+      # どちらも hermes-secrets の GH_PAT を参照する。
+      - name: install-gh-git
+        image: nousresearch/hermes-agent:v2026.9.24@sha256:2fd023efbb8d3d2b0ce1a73d028b07370cff34f567cfe0e999553e8c327ea283
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          PY=$(command -v python3 || command -v python)
+          "$PY" - <<'EOF'
+          import glob, hashlib, os, platform, shutil, tarfile, tempfile, urllib.request
+
+          version = os.environ["GH_VERSION"]
+          arch = {"x86_64": "amd64", "amd64": "amd64", "aarch64": "arm64", "arm64": "arm64"}[platform.machine()]
+          name = f"gh_{version}_linux_{arch}"
+          base = f"https://github.com/cli/cli/releases/download/v{version}"
+          libexec = "/opt/data/libexec"
+          target = f"{libexec}/gh-{version}"
+
+          os.makedirs(libexec, exist_ok=True)
+          os.makedirs("/opt/data/bin", exist_ok=True)
+          if os.path.exists(target):
+              print(f"gh {version} ({arch}) already installed")
+          else:
+              with urllib.request.urlopen(f"{base}/gh_{version}_checksums.txt") as r:
+                  sums = {f: s for s, f in (l.split() for l in r.read().decode().splitlines() if l.strip())}
+              tmpdir = tempfile.mkdtemp(dir="/opt/data")
+              try:
+                  tgz = f"{tmpdir}/{name}.tar.gz"
+                  urllib.request.urlretrieve(f"{base}/{name}.tar.gz", tgz)
+                  h = hashlib.sha256()
+                  with open(tgz, "rb") as f:
+                      for chunk in iter(lambda: f.read(1 << 20), b""):
+                          h.update(chunk)
+                  if h.hexdigest() != sums[f"{name}.tar.gz"]:
+                      raise SystemExit(f"checksum mismatch for gh {version} ({arch})")
+                  with tarfile.open(tgz) as t, open(target + ".tmp", "wb") as out:
+                      shutil.copyfileobj(t.extractfile(f"{name}/bin/gh"), out)
+                  os.chmod(target + ".tmp", 0o755)
+                  os.replace(target + ".tmp", target)
+              finally:
+                  shutil.rmtree(tmpdir)
+              print(f"installed gh {version} ({arch})")
+
+          with open("/opt/data/bin/gh", "w") as f:
+              f.write(f'#!/bin/sh\n# install-gh-git initContainer が生成\nexport GH_TOKEN="${{GH_TOKEN:-$GH_PAT}}"\nexec {target} "$@"\n')
+          os.chmod("/opt/data/bin/gh", 0o755)
+          # 古いバージョンは PVC を圧迫するので消す
+          for old in glob.glob(f"{libexec}/gh-*"):
+              if old != target:
+                  os.remove(old)
+          EOF
+          # git はサブプロセスの HOME（/opt/data/home）の XDG 設定を読む。このファイルは毎回上書きし、
+          # Hermes や Claude Code が足す個別の設定は ~/.gitconfig 側に残す
+          mkdir -p /opt/data/home/.config/git
+          cat > /opt/data/home/.config/git/config <<'GITCONFIG'
+          # install-gh-git initContainer が毎回上書きする。個別の設定は ~/.gitconfig に書く
+          [user]
+          	name = Hermes Agent (o-ga09)
+          	email = 54522966+o-ga09@users.noreply.github.com
+          [credential "https://github.com"]
+          	helper =
+          	helper = "!f() { test \"$1\" = get || exit 0; echo username=x-access-token; echo \"password=$GH_PAT\"; }; f"
+          [init]
+          	defaultBranch = main
+          GITCONFIG
+          # gateway（config.yaml の所有者）が読み書きできるようにする
+          chown -R --reference=/opt/data/config.yaml /opt/data/libexec /opt/data/bin/gh /opt/data/home/.config
+        env:
+        - name: GH_VERSION
+          value: "2.102.0"
+        volumeMounts:
+        - name: data
+          mountPath: /opt/data
       containers:
       - name: hermes-agent
         image: nousresearch/hermes-agent:v2026.9.24@sha256:2fd023efbb8d3d2b0ce1a73d028b07370cff34f567cfe0e999553e8c327ea283
