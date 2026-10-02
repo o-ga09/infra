@@ -122,6 +122,11 @@ Hermes Agent（`nousresearch/hermes-agent`）が要求する環境変数。Secre
 | `SLACK_ALLOWED_USERS` | 応答を許可する Slack Member ID（カンマ区切り） |
 | `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET` | LINE Messaging API（webhook 受信） |
 | `LINE_ALLOWED_USERS` | 応答を許可する LINE ユーザーID（`U...`、カンマ区切り） |
+| `CLAUDE_CODE_OAUTH_TOKEN` | terminal から呼ぶ Claude Code CLI 用（`claude setup-token` で発行） |
+| `GH_PAT` | Hermes / Claude Code が Git push・PR 作成に使う fine-grained PAT |
+
+キーを足したら、Deployment の initContainer `configure-model` の `keys=` にも追加する
+（2回目以降の起動で s6 配下になる gateway は、`/opt/data/.env` 経由でしか env を受け取らないため）。
 
 ### mh-api (`manifests/mh-api/`)
 

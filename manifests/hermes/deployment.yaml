@@ -43,7 +43,7 @@ spec:
           # gateway が読む /opt/data/.env に必要な env を書き出す（他のキーは保持する）
           umask 077
           touch /opt/data/.env
-          keys="GOOGLE_API_KEY SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL CLAUDE_CODE_OAUTH_TOKEN CLAUDE_CONFIG_DIR DISABLE_AUTOUPDATER"
+          keys="GOOGLE_API_KEY SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL CLAUDE_CODE_OAUTH_TOKEN GH_PAT CLAUDE_CONFIG_DIR DISABLE_AUTOUPDATER"
           pattern=$(echo "$keys PATH" | sed 's/ /=|^/g')
           grep -Ev "^${pattern}=" /opt/data/.env > /opt/data/.env.tmp || true
           for k in $keys; do
@@ -66,7 +66,7 @@ spec:
         # バイナリは install-claude-code がバージョン固定で配るので自動更新させない
         - name: DISABLE_AUTOUPDATER
           value: "1"
-        # CLAUDE_CODE_OAUTH_TOKEN（claude setup-token で発行）は hermes-secrets から読み込む
+        # CLAUDE_CODE_OAUTH_TOKEN（claude setup-token で発行）/ GH_PAT は hermes-secrets から読み込む
         envFrom:
         - secretRef:
             name: hermes-secrets
