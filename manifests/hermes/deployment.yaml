@@ -50,6 +50,10 @@ spec:
           value: "gemini"
         - name: LINE_PUBLIC_URL
           value: "https://hermes.o-ga09.com"
+        # s6 配下で gateway を起動するとコンテナの env（hermes-secrets）が引き継がれず、
+        # API キーや許可ユーザーが読めなくなるため、従来のフォアグラウンド起動にする
+        - name: HERMES_GATEWAY_NO_SUPERVISE
+          value: "1"
         # GOOGLE_API_KEY / SLACK_* / LINE_* は hermes-secrets から読み込む
         envFrom:
         - secretRef:
