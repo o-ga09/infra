@@ -43,13 +43,16 @@ spec:
           # gateway が読む /opt/data/.env に必要な env を書き出す（他のキーは保持する）
           umask 077
           touch /opt/data/.env
-          keys="GOOGLE_API_KEY SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL"
-          pattern=$(echo "$keys" | sed 's/ /=|^/g')
+          keys="GOOGLE_API_KEY SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL CLAUDE_CODE_OAUTH_TOKEN CLAUDE_CONFIG_DIR DISABLE_AUTOUPDATER"
+          pattern=$(echo "$keys PATH" | sed 's/ /=|^/g')
           grep -Ev "^${pattern}=" /opt/data/.env > /opt/data/.env.tmp || true
           for k in $keys; do
             eval "v=\${$k:-}"
             if [ -n "$v" ]; then printf '%s=%s\n' "$k" "$v" >> /opt/data/.env.tmp; fi
           done
+          # install-claude-code が置いた claude を terminal ツールから呼べるようにする
+          # （Hermes は .env を override で読み、${PATH} を起動時の PATH で展開する）
+          printf 'PATH=/opt/data/bin:${PATH}\n' >> /opt/data/.env.tmp
           chown --reference=/opt/data/config.yaml /opt/data/.env.tmp
           mv /opt/data/.env.tmp /opt/data/.env
         env:
@@ -57,9 +60,79 @@ spec:
           value: "gemini"
         - name: LINE_PUBLIC_URL
           value: "https://hermes.o-ga09.com"
+        # Hermes の terminal はサブプロセスの HOME を差し替えるため、Claude Code の設定先は明示する
+        - name: CLAUDE_CONFIG_DIR
+          value: "/opt/data/.claude"
+        # バイナリは install-claude-code がバージョン固定で配るので自動更新させない
+        - name: DISABLE_AUTOUPDATER
+          value: "1"
+        # CLAUDE_CODE_OAUTH_TOKEN（claude setup-token で発行）は hermes-secrets から読み込む
         envFrom:
         - secretRef:
             name: hermes-secrets
+        volumeMounts:
+        - name: data
+          mountPath: /opt/data
+      # Claude Code（ネイティブ版の単体バイナリ）を PVC 上の /opt/data/bin に配る。
+      # Hermes 本体と同じイメージで実行し、libc（glibc/musl）とアーキテクチャを合わせる。
+      - name: install-claude-code
+        image: nousresearch/hermes-agent:v2026.9.24@sha256:2fd023efbb8d3d2b0ce1a73d028b07370cff34f567cfe0e999553e8c327ea283
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          PY=$(command -v python3 || command -v python)
+          "$PY" - <<'EOF'
+          import glob, hashlib, json, os, platform, urllib.request
+
+          version = os.environ["CLAUDE_CODE_VERSION"]
+          base = "https://downloads.claude.ai/claude-code-releases"
+          bin_dir = "/opt/data/bin"
+          target = f"{bin_dir}/claude-{version}"
+
+          arch = {"x86_64": "x64", "amd64": "x64", "aarch64": "arm64", "arm64": "arm64"}[platform.machine()]
+          musl = glob.glob("/lib/libc.musl-*.so.1") or glob.glob("/lib/ld-musl-*.so.1")
+          plat = f"linux-{arch}" + ("-musl" if musl else "")
+
+          with urllib.request.urlopen(f"{base}/{version}/manifest.json") as r:
+              checksum = json.load(r)["platforms"][plat]["checksum"]
+
+          def sha256(path):
+              h = hashlib.sha256()
+              with open(path, "rb") as f:
+                  for chunk in iter(lambda: f.read(1 << 20), b""):
+                      h.update(chunk)
+              return h.hexdigest()
+
+          os.makedirs(bin_dir, exist_ok=True)
+          if os.path.exists(target) and sha256(target) == checksum:
+              print(f"claude {version} ({plat}) already installed")
+          else:
+              tmp = target + ".tmp"
+              urllib.request.urlretrieve(f"{base}/{version}/{plat}/claude", tmp)
+              if sha256(tmp) != checksum:
+                  os.remove(tmp)
+                  raise SystemExit(f"checksum mismatch for claude {version} ({plat})")
+              os.chmod(tmp, 0o755)
+              os.replace(tmp, target)
+              print(f"installed claude {version} ({plat})")
+
+          link = f"{bin_dir}/claude"
+          if os.path.lexists(link):
+              os.remove(link)
+          os.symlink(os.path.basename(target), link)
+          # 古いバージョンは PVC を圧迫するので消す
+          for old in glob.glob(f"{bin_dir}/claude-*"):
+              if old != target:
+                  os.remove(old)
+          EOF
+          # gateway（config.yaml の所有者）が読み書きできるようにする
+          mkdir -p /opt/data/.claude
+          chown -R --reference=/opt/data/config.yaml /opt/data/bin /opt/data/.claude
+        env:
+        - name: CLAUDE_CODE_VERSION
+          value: "2.1.287"
         volumeMounts:
         - name: data
           mountPath: /opt/data
