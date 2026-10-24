@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-runner-estimate-ai-agent
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # コントローラーと同じバージョンに揃えること
+    repoURL: ghcr.io/actions/actions-runner-controller-charts
+    targetRevision: "0.15.1"
+    chart: gha-runner-scale-set
+    helm:
+      values: |
+        # workflow の runs-on はこの名前と完全一致させる
+        runnerScaleSetName: estimate-ai-agent-runner
+        githubConfigUrl: https://github.com/wakuto-solution-2/estimate-ai-agent
+        # GitHub App の Secret（arc-runners ns に別途 SealedSecret で用意）
+        githubConfigSecret: arc-gh-app
+        minRunners: 0
+        maxRunners: 2
+        # ArgoCD は helm template で描画し controller を自動検出できないため明示する
+        controllerServiceAccount:
+          namespace: arc-systems
+          name: arc-gha-rs-controller
+        containerMode:
+          type: dind
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

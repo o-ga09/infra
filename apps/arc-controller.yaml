@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-controller
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ghcr.io/actions/actions-runner-controller-charts
+    targetRevision: "0.15.1"
+    chart: gha-runner-scale-set-controller
+    helm:
+      values: |
+        # runner scale set 側から参照するため名前を固定する
+        serviceAccount:
+          create: true
+          name: arc-gha-rs-controller
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-systems
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
