@@ -18,13 +18,25 @@ spec:
         # PAT (classic, repo スコープ) の Secret（arc-runners ns に別途 SealedSecret で用意。キーは github_token）
         githubConfigSecret: arc-github-pat
         minRunners: 0
-        maxRunners: 2
+        maxRunners: 5
         # ArgoCD は helm template で描画し controller を自動検出できないため明示する
         controllerServiceAccount:
           namespace: arc-systems
           name: arc-gha-rs-controller
         containerMode:
           type: dind
+        template:
+          spec:
+            # k3s-server はコントロールプレーン兼用でメモリに余裕がないため agent に固定する
+            nodeSelector:
+              kubernetes.io/hostname: k3s-agent
+            containers:
+              - name: runner
+                image: ghcr.io/actions/actions-runner:latest
+                command: ["/home/runner/run.sh"]
+                resources:
+                  requests: { cpu: 500m, memory: 512Mi }
+                  limits: { cpu: "2", memory: 2Gi }
   destination:
     server: https://kubernetes.default.svc
     namespace: arc-runners
