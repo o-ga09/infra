@@ -15,8 +15,8 @@ spec:
         # workflow の runs-on はこの名前と完全一致させる
         runnerScaleSetName: estimate-ai-agent-runner
         githubConfigUrl: https://github.com/wakuto-solution-2/estimate-ai-agent
-        # GitHub App の Secret（arc-runners ns に別途 SealedSecret で用意）
-        githubConfigSecret: arc-gh-app
+        # PAT (classic, repo スコープ) の Secret（arc-runners ns に別途 SealedSecret で用意。キーは github_token）
+        githubConfigSecret: arc-github-pat
         minRunners: 0
         maxRunners: 2
         # ArgoCD は helm template で描画し controller を自動検出できないため明示する
