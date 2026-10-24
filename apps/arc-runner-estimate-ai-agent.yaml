@@ -32,7 +32,8 @@ spec:
               kubernetes.io/hostname: k3s-agent
             containers:
               - name: runner
-                image: ghcr.io/actions/actions-runner:latest
+                # build-runner-image ワークフローが push した SHA タグで固定する（更新は SHA を差し替える）
+                image: ghcr.io/o-ga09/arc-runner:f8d886e3e3ce0f62a7bd360f66cfa4e66969ca30
                 command: ["/home/runner/run.sh"]
                 resources:
                   requests: { cpu: 500m, memory: 512Mi }
