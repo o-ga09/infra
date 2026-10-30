@@ -27,9 +27,11 @@ spec:
         - -c
         - |
           set -e
-          hermes config set model.provider gemini
+          # Google AI Studio（provider: gemini）はプリペイド枯渇で 402 になるため Vertex AI を使う。
+          # project_id / region / 認証情報パスは env（VERTEX_*）が config.yaml より優先される
+          hermes config set model.provider vertex
           hermes config set model.default gemini-3.7-flash
-          hermes config set model.base_url https://generativelanguage.googleapis.com/v1beta
+          hermes config set vertex.region global
           # 飲食店検索 MCP サーバー（manifests/gourmet-mcp）
           hermes config set mcp_servers.gourmet.url http://gourmet-mcp.gourmet.svc:8080/mcp
           hermes config set mcp_servers.gourmet.timeout 120
@@ -43,7 +45,7 @@ spec:
           # gateway が読む /opt/data/.env に必要な env を書き出す（他のキーは保持する）
           umask 077
           touch /opt/data/.env
-          keys="GOOGLE_API_KEY SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL CLAUDE_CODE_OAUTH_TOKEN GH_PAT CLAUDE_CONFIG_DIR DISABLE_AUTOUPDATER"
+          keys="VERTEX_PROJECT_ID VERTEX_REGION VERTEX_CREDENTIALS_PATH SLACK_BOT_TOKEN SLACK_APP_TOKEN SLACK_ALLOWED_USERS LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET LINE_ALLOWED_USERS HERMES_INFERENCE_PROVIDER LINE_PUBLIC_URL CLAUDE_CODE_OAUTH_TOKEN GH_PAT CLAUDE_CONFIG_DIR DISABLE_AUTOUPDATER"
           pattern=$(echo "$keys PATH" | sed 's/ /=|^/g')
           grep -Ev "^${pattern}=" /opt/data/.env > /opt/data/.env.tmp || true
           for k in $keys; do
@@ -57,7 +59,11 @@ spec:
           mv /opt/data/.env.tmp /opt/data/.env
         env:
         - name: HERMES_INFERENCE_PROVIDER
-          value: "gemini"
+          value: "vertex"
+        - name: VERTEX_REGION
+          value: "global"
+        - name: VERTEX_CREDENTIALS_PATH
+          value: "/etc/vertex/credentials.json"
         - name: LINE_PUBLIC_URL
           value: "https://hermes.o-ga09.com"
         # Hermes の terminal はサブプロセスの HOME を差し替えるため、Claude Code の設定先は明示する
@@ -73,6 +79,9 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /opt/data
+        - name: vertex-credentials
+          mountPath: /etc/vertex
+          readOnly: true
       # Claude Code（ネイティブ版の単体バイナリ）を PVC 上の /opt/data/bin に配る。
       # Hermes 本体と同じイメージで実行し、libc（glibc/musl）とアーキテクチャを合わせる。
       - name: install-claude-code
@@ -236,16 +245,23 @@ spec:
           name: line-webhook
         env:
         - name: HERMES_INFERENCE_PROVIDER
-          value: "gemini"
+          value: "vertex"
+        - name: VERTEX_REGION
+          value: "global"
+        - name: VERTEX_CREDENTIALS_PATH
+          value: "/etc/vertex/credentials.json"
         - name: LINE_PUBLIC_URL
           value: "https://hermes.o-ga09.com"
-        # GOOGLE_API_KEY / SLACK_* / LINE_* は hermes-secrets から読み込む
+        # VERTEX_PROJECT_ID / SLACK_* / LINE_* は hermes-secrets から読み込む
         envFrom:
         - secretRef:
             name: hermes-secrets
         volumeMounts:
         - name: data
           mountPath: /opt/data
+        - name: vertex-credentials
+          mountPath: /etc/vertex
+          readOnly: true
         resources:
           requests:
             cpu: "250m"
@@ -257,3 +273,8 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: hermes-data
+      # Vertex AI 用サービスアカウント鍵（Secret hermes-vertex-credentials の credentials.json）
+      - name: vertex-credentials
+        secret:
+          secretName: hermes-vertex-credentials
+          optional: true
