@@ -117,7 +117,7 @@ Hermes Agent（`nousresearch/hermes-agent`）が要求する環境変数。Secre
 
 | キー | 内容 |
 |---|---|
-| `GOOGLE_API_KEY` | Gemini API キー（Google AI Studio）。モデルは Deployment の initContainer で設定 |
+| `VERTEX_PROJECT_ID` | Vertex AI を使う GCP プロジェクト ID。サービスアカウント鍵は別 Secret `hermes-vertex-credentials`（キー `credentials.json`、`roles/aiplatform.user`）に入れる |
 | `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` | Slack Socket Mode（`xoxb-` / `xapp-`） |
 | `SLACK_ALLOWED_USERS` | 応答を許可する Slack Member ID（カンマ区切り） |
 | `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET` | LINE Messaging API（webhook 受信） |
