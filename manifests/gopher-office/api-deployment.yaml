@@ -27,6 +27,8 @@ spec:
         # Cloudflare Tunnel の背後なので、IP ごとのレート制限には CF-Connecting-IP を使う。
         # office.home.local（LAN）から直接来ると偽装できるが、影響はレート制限の回避だけ（認証には使わない）
         - -trust-cloudflare-ip
+        # アイコン画像は Cloudflare R2（S3 互換）に置く。書き込みは R2 と DB の二重化、読み出しは R2 優先で DB にフォールバック
+        - -icon-store=s3
         ports:
         - containerPort: 8080
         env:
@@ -47,6 +49,29 @@ spec:
             secretKeyRef:
               name: office-secret
               key: ROOM_TOKEN_SECRET
+        # R2: S3_ENDPOINT は https://<アカウントID>.r2.cloudflarestorage.com。S3_REGION は R2 では auto
+        - name: S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: S3_ENDPOINT
+        - name: S3_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: S3_BUCKET
+        - name: S3_REGION
+          value: auto
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: R2_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: R2_SECRET_ACCESS_KEY
         readinessProbe:
           httpGet:
             path: /healthz
