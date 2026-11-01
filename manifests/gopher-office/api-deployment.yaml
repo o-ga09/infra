@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: office-api
+  namespace: gopher-office
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: office-api
+  template:
+    metadata:
+      labels:
+        app: office-api
+    spec:
+      serviceAccountName: office-api
+      containers:
+      - name: office-api
+        image: ghcr.io/o-ga09/gopher-office/api:main
+        imagePullPolicy: Always
+        args:
+        - -agones
+        - -agones-namespace=gopher-office
+        - -agones-fleet=office
+        - -public-ws-url=wss://office.o-ga09.com/room
+        # Cloudflare Tunnel の背後なので、IP ごとのレート制限には CF-Connecting-IP を使う。
+        # office.home.local（LAN）から直接来ると偽装できるが、影響はレート制限の回避だけ（認証には使わない）
+        - -trust-cloudflare-ip
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REDIS_URL
+          value: redis://redis.redis.svc.cluster.local:6379/1
+        - name: MYSQL_DSN
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: MYSQL_DSN
+        - name: PLAYER_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: PLAYER_TOKEN_SECRET
+        - name: ROOM_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: ROOM_TOKEN_SECRET
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 6
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

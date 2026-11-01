@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: office-gateway
+  namespace: gopher-office
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: office-gateway
+  template:
+    metadata:
+      labels:
+        app: office-gateway
+    spec:
+      serviceAccountName: office-gateway
+      containers:
+      - name: office-gateway
+        image: ghcr.io/o-ga09/gopher-office/gateway:main
+        imagePullPolicy: Always
+        args:
+        - -namespace=gopher-office
+        - -origin=office.o-ga09.com,office.home.local
+        ports:
+        - containerPort: 8081
+        env:
+        # ゲートウェイが持つのは roomToken の検証鍵だけ（playerToken は扱えない）
+        - name: ROOM_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: office-secret
+              key: ROOM_TOKEN_SECRET
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "1"

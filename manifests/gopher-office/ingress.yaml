@@ -1,0 +1,62 @@
+# 単一ホストをパスで振り分ける: / → web、/v1 → api、/room → gateway。
+# /internal は API の内部用（GameServer からの通知）なので、ここには出さない
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: office
+  namespace: gopher-office
+  annotations:
+    # WebSocket を長く保つ（既定の 60 秒だと切れる）
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: office.o-ga09.com
+    http:
+      paths:
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: office-api
+            port:
+              number: 8080
+      - path: /room
+        pathType: Exact
+        backend:
+          service:
+            name: office-gateway
+            port:
+              number: 8081
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: office-web
+            port:
+              number: 8080
+  - host: office.home.local
+    http:
+      paths:
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: office-api
+            port:
+              number: 8080
+      - path: /room
+        pathType: Exact
+        backend:
+          service:
+            name: office-gateway
+            port:
+              number: 8081
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: office-web
+            port:
+              number: 8080

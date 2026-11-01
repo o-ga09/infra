@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: agones
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://agones.dev/chart/stable
+    chart: agones
+    targetRevision: 1.61.0
+    helm:
+      releaseName: agones
+      valuesObject:
+        agones:
+          metrics:
+            prometheusEnabled: true
+            serviceMonitor:
+              enabled: true
+              additionalLabels:
+                release: kube-prometheus-stack
+        # GameServerAllocation は k8s API（集約 API）から直接作るので、allocator の gRPC サービスは使わない。ping も使わない
+        allocator:
+          install: false
+        ping:
+          install: false
+        # GameServer を置く Namespace。他のゲームを載せるときはここに足す
+        gameservers:
+          namespaces:
+          - gopher-office
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: agones-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
