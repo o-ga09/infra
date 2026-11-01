@@ -19,11 +19,11 @@ spec:
               enabled: true
               additionalLabels:
                 release: kube-prometheus-stack
-        # GameServerAllocation は k8s API（集約 API）から直接作るので、allocator の gRPC サービスは使わない。ping も使わない
-        allocator:
-          install: false
-        ping:
-          install: false
+          # GameServerAllocation は k8s API（集約 API）から直接作るので、allocator の gRPC サービスは使わない。ping も使わない
+          allocator:
+            install: false
+          ping:
+            install: false
         # GameServer を置く Namespace。他のゲームを載せるときはここに足す
         gameservers:
           namespaces:
