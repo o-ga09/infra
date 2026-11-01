@@ -1,0 +1,59 @@
+# ルームごとの GameServer。API が GameServerAllocation で Ready の 1 台をルームに割り当て、
+# 無人が 5 分続くと GameServer 自身が Shutdown し、Fleet が代わりを補充する。
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: office
+  namespace: gopher-office
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: office-gameserver
+    spec:
+      ports:
+      - name: default
+        # ポートは公開しない。ゲートウェイが Pod の IP に直接つなぐ
+        portPolicy: None
+        containerPort: 7654
+        protocol: TCP
+      health:
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 3
+      template:
+        spec:
+          containers:
+          - name: office-gameserver
+            # main の最新。固定したいときは sha-<コミット> のタグにする（Fleet が順次入れ替える）
+            image: ghcr.io/o-ga09/gopher-office/gameserver:main
+            imagePullPolicy: Always
+            env:
+            - name: ROOM_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: office-secret
+                  key: ROOM_TOKEN_SECRET
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "200m"
+              limits:
+                memory: "256Mi"
+                cpu: "1"
+---
+# 待機（Ready）を常に 1〜2 台保つ。上限は小さめにしてある（200 体の負荷試験のあとに見直す）
+apiVersion: autoscaling.agones.dev/v1
+kind: FleetAutoscaler
+metadata:
+  name: office
+  namespace: gopher-office
+spec:
+  fleetName: office
+  policy:
+    type: Buffer
+    buffer:
+      bufferSize: 1
+      minReplicas: 2
+      maxReplicas: 6

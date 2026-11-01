@@ -1,0 +1,64 @@
+# API: ルームに GameServer を割り当て、割り当て済みの GameServer が生きているかを確かめる
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: office-api
+  namespace: gopher-office
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: office-api
+  namespace: gopher-office
+rules:
+- apiGroups: ["allocation.agones.dev"]
+  resources: ["gameserverallocations"]
+  verbs: ["create"]
+- apiGroups: ["agones.dev"]
+  resources: ["gameservers"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: office-api
+  namespace: gopher-office
+subjects:
+- kind: ServiceAccount
+  name: office-api
+  namespace: gopher-office
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: office-api
+---
+# ゲートウェイ: GameServer の Pod の IP を調べる（Pod 名は GameServer 名と同じ）
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: office-gateway
+  namespace: gopher-office
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: office-gateway
+  namespace: gopher-office
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: office-gateway
+  namespace: gopher-office
+subjects:
+- kind: ServiceAccount
+  name: office-gateway
+  namespace: gopher-office
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: office-gateway
