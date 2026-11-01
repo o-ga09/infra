@@ -273,10 +273,10 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: hermes-data
-      # Vertex AI 用サービスアカウント鍵（Secret hermes-secrets の credentials.json）
+      # Vertex AI 用サービスアカウント鍵（Secret hermes-secrets の VERTEX_CREDENTIALS_JSON）
       - name: vertex-credentials
         secret:
           secretName: hermes-secrets
           items:
-          - key: credentials.json
+          - key: VERTEX_CREDENTIALS_JSON
             path: credentials.json
