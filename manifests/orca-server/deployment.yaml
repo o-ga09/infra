@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orca-server
+  namespace: orca-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  # 同じ /data を 2 つの Pod が同時に使うとロックで起動しないため、必ず Recreate にする
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: orca-server
+  template:
+    metadata:
+      labels:
+        app: orca-server
+    spec:
+      # コントロールプレーン（メモリ 4GiB で 75% 使用）を避け、agent に固定する。
+      # local-path の PVC もノードに固定されるため、ここで明示しておく
+      nodeSelector:
+        kubernetes.io/hostname: k3s-agent
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: orca-server
+        # TODO: 初回ビルド後に ghcr のコミット SHA タグへ固定する（latest のままだと再起動で意図せず更新される）
+        image: ghcr.io/o-ga09/orca-server:latest
+        ports:
+        - containerPort: 6768
+          name: orca
+        env:
+        - name: ORCA_PORT
+          value: "6768"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: work
+          mountPath: /work
+        readinessProbe:
+          tcpSocket:
+            port: orca
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: orca
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          failureThreshold: 5
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "3Gi"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: orca-data
+      - name: work
+        persistentVolumeClaim:
+          claimName: orca-work

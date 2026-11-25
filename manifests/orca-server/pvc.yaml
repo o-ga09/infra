@@ -1,0 +1,31 @@
+# local-path は reclaimPolicy: Delete のため、ArgoCD の prune / アプリ削除で PVC が消えると
+# リポジトリと Orca の状態（ペアリング鍵・エージェントの認証）が失われる。両方とも保護する。
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orca-data
+  namespace: orca-server
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orca-work
+  namespace: orca-server
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 15Gi
