@@ -30,8 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: orca-server
-        # TODO: 初回ビルド後に ghcr のコミット SHA タグへ固定する（latest のままだと再起動で意図せず更新される）
-        image: ghcr.io/o-ga09/orca-server:latest
+        image: ghcr.io/o-ga09/orca-server:68c6b3b6acde41a21cc354d0987295ecc4cb5b57
         ports:
         - containerPort: 6768
           name: orca
