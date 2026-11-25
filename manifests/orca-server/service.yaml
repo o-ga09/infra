@@ -1,0 +1,13 @@
+# ClusterIP のみ。外部公開は別途（cloudflared / Tailscale）行うまでは kubectl port-forward で接続する
+apiVersion: v1
+kind: Service
+metadata:
+  name: orca-server
+  namespace: orca-server
+spec:
+  selector:
+    app: orca-server
+  ports:
+  - name: orca
+    port: 6768
+    targetPort: orca

@@ -1,0 +1,40 @@
+# Orca のサーバーはシェル実行可能なエージェントを動かす。hermes と同様に、クラスタ内サービス
+# （MySQL / Redis / 他アプリ）や自宅 LAN へは到達させず、DNS と外部の HTTP(S) のみ許可する。
+# ingress は未許可（kubectl port-forward は NetworkPolicy の対象外）。公開するときに追加する。
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: orca-server
+  namespace: orca-server
+spec:
+  podSelector:
+    matchLabels:
+      app: orca-server
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
