@@ -1,0 +1,34 @@
+name: build-orca-server-image
+
+on:
+  push:
+    branches: [main]
+    paths: [orca-server-image/**, .github/workflows/build-orca-server-image.yaml]
+  pull_request:
+    paths: [orca-server-image/**, .github/workflows/build-orca-server-image.yaml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      # PR ではビルドの検証だけ行い、push しない
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: orca-server-image
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/o-ga09/orca-server:latest
+            ghcr.io/o-ga09/orca-server:${{ github.sha }}
