@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasource-pyroscope
+  namespace: monitoring
+  labels:
+    grafana_datasource: "1"
+data:
+  pyroscope-datasource.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Pyroscope
+      type: grafana-pyroscope-datasource
+      access: proxy
+      url: http://pyroscope.monitoring.svc.cluster.local:4040
+      isDefault: false
