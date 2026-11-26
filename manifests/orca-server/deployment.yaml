@@ -37,6 +37,22 @@ spec:
         env:
         - name: ORCA_PORT
           value: "6768"
+        # git の https 認証に gh を使う（GH_TOKEN は orca-secrets から渡す。イメージには焼かない）
+        - name: GIT_CONFIG_COUNT
+          value: "2"
+        - name: GIT_CONFIG_KEY_0
+          value: "credential.https://github.com.helper"
+        - name: GIT_CONFIG_VALUE_0
+          value: ""
+        - name: GIT_CONFIG_KEY_1
+          value: "credential.https://github.com.helper"
+        - name: GIT_CONFIG_VALUE_1
+          value: "!gh auth git-credential"
+        # Secret が未作成でも Pod が起動できるよう optional にしている
+        envFrom:
+        - secretRef:
+            name: orca-secrets
+            optional: true
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
