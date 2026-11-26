@@ -1,6 +1,7 @@
 # Orca のサーバーはシェル実行可能なエージェントを動かす。hermes と同様に、クラスタ内サービス
 # （MySQL / Redis / 他アプリ）や自宅 LAN へは到達させず、DNS と外部の HTTP(S) のみ許可する。
-# ingress は未許可（kubectl port-forward は NetworkPolicy の対象外）。公開するときに追加する。
+# ingress は cloudflared の Pod からの 6768 のみ許可する（WARP + Tunnel のプライベートネットワーク経由）。
+# kubectl port-forward は NetworkPolicy の対象外。
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -13,6 +14,17 @@ spec:
   policyTypes:
   - Ingress
   - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: cloudflared
+      podSelector:
+        matchLabels:
+          app: cloudflared
+    ports:
+    - protocol: TCP
+      port: 6768
   egress:
   - to:
     - namespaceSelector:

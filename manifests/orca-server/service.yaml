@@ -1,10 +1,14 @@
-# ClusterIP のみ。外部公開は別途（cloudflared / Tailscale）行うまでは kubectl port-forward で接続する
+# ClusterIP のみ（公開ホスト名は作らない）。外部からは、Cloudflare WARP + Tunnel のプライベートネットワーク
+# 経由で、この ClusterIP に直接接続する（Cloudflare の Tunnel に、この IP の /32 ルートを追加している）。
+# ルートはこの IP に固定されるため、Service を作り直しても IP が変わらないよう明示する。
+# （10.43.0.0/16 は k3s の Service CIDR。変更するときは Cloudflare 側のルートも更新すること）
 apiVersion: v1
 kind: Service
 metadata:
   name: orca-server
   namespace: orca-server
 spec:
+  clusterIP: 10.43.222.113
   selector:
     app: orca-server
   ports:
