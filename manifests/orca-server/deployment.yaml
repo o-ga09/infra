@@ -30,7 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: orca-server
-        image: ghcr.io/o-ga09/orca-server:9527b4bdf2577d05c2ee2f80953e28fda6b53464
+        image: ghcr.io/o-ga09/orca-server:f07a5b3aa6f2a2502cbdb3335db652b1f57457d4
         ports:
         - containerPort: 6768
           name: orca
