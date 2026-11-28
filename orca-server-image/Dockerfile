@@ -60,7 +60,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends xz-utils unzip 
  && npm cache clean --force
 
 # Playwright のブラウザ（chromium のみ）と OS 依存ライブラリ。非 root の orca から読めるよう共有パスに置く
-ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+# グローバルインストールした playwright をプロジェクト側から require できるよう NODE_PATH も通す
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright \
+    NODE_PATH=/usr/local/lib/node_modules
 RUN playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/* \
  && chmod -R a+rX /opt/ms-playwright
