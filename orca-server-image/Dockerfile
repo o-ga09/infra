@@ -50,7 +50,7 @@ RUN base="https://downloads.claude.ai/claude-code-releases/${CLAUDE_CODE_VERSION
  && chmod 0755 /usr/local/bin/claude
 
 # Node.js（公式 tarball。sha256 が一致しなければビルドを失敗させる）。Orca 同梱の Node とは別物
-RUN apt-get update && apt-get install -y --no-install-recommends xz-utils unzip zip \
+RUN apt-get update && apt-get install -y --no-install-recommends xz-utils unzip zip libatomic1 \
  && rm -rf /var/lib/apt/lists/* \
  && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
  && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
